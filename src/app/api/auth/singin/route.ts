@@ -28,9 +28,22 @@ export async function POST(req: Request) {
   const refreshToken = signRefreshToken({ userId: user.id });
 
   // 5️⃣ Set cookies
+  const isProduction = process.env.NODE_ENV === 'production'
   const res = NextResponse.json({ success: true });
-  res.cookies.set('access_token', accessToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/' });
-  res.cookies.set('refresh_token', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/' });
+  res.cookies.set('access_token', accessToken, { 
+    httpOnly: true, 
+    secure: isProduction, 
+    sameSite: 'lax', 
+    path: '/',
+    maxAge: 60 * 15 // 15 minutes
+  });
+  res.cookies.set('refresh_token', refreshToken, { 
+    httpOnly: true, 
+    secure: isProduction, 
+    sameSite: 'lax', 
+    path: '/',
+    maxAge: 60 * 60 * 24 * 7 // 7 days
+  });
 
   return res;
 }

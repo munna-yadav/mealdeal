@@ -9,7 +9,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 
-  const record = await prisma.verificationToken.findUnique({ where: { token } });
+  const record = await prisma.VerificationToken.findUnique({ where: { token } });
   if (!record || record.expiresAt < new Date()) {
     return NextResponse.json({ error: 'Token expired or invalid' }, { status: 400 });
   }
@@ -19,7 +19,7 @@ export async function GET(req: Request) {
     data: { isVerified: true }
   });
 
-  await prisma.verificationToken.delete({ where: { token } });
+  await prisma.VerificationToken.delete({ where: { token } });
 
   return NextResponse.json({ message: 'Email verified successfully' });
 }

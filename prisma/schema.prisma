@@ -21,14 +21,30 @@ model User {
   password  String
   isVerified Boolean @default(false)
   createdAt DateTime @default(now())
-  tokens    verificationToken[]
+  tokens    VerificationToken[]
+  resetTokens PasswordResetToken[]
 }
 
-model verificationToken{
-   id        Int      @id @default(autoincrement())
+model VerificationToken {
+  id        Int      @id @default(autoincrement())
   token     String   @unique
   userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
   createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
 }
