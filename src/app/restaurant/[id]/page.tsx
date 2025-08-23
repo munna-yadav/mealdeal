@@ -1,101 +1,22 @@
-import Image from "next/image"
+"use client"
+
+import { useEffect, useState } from "react"
 import { notFound } from "next/navigation"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Star, MapPin, Clock, Phone, Heart, Share, Calendar } from "lucide-react"
+import { restaurantAPI } from "@/lib/api"
+import type { Restaurant } from "@/hooks/useRestaurants"
 
-// Mock restaurant data
-const restaurants = {
-  "1": {
-    id: "1",
-    name: "Bella Vista",
-    cuisine: "Italian • Fine Dining",
-    rating: 4.8,
-    reviewCount: 324,
-    location: "123 Main St, Downtown",
-    phone: "(555) 123-4567",
-    hours: "Mon-Sun: 11:00 AM - 10:00 PM",
-    deliveryTime: "25-35 min",
-    description: "Experience authentic Italian cuisine in an elegant atmosphere. Our chefs use traditional recipes passed down through generations, featuring fresh ingredients imported directly from Italy.",
-    images: [
+// Default placeholder data for loading/error states
+const defaultImages = [
       "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=600&fit=crop"
-    ],
-    deals: [
-      {
-        id: "1",
-        title: "3-Course Italian Dinner for Two",
-        discount: 50,
-        originalPrice: 120,
-        discountedPrice: 60,
-        description: "Includes appetizer, main course, and dessert",
-        expiresIn: "2 days",
-        terms: "Valid for dinner only. Cannot be combined with other offers."
-      },
-      {
-        id: "2",
-        title: "Wine Tasting Experience",
-        discount: 35,
-        originalPrice: 85,
-        discountedPrice: 55,
-        description: "Taste 6 premium Italian wines with cheese pairing",
-        expiresIn: "1 week",
-        terms: "Available weekends only. Must be 21+."
-      }
-    ],
-    menu: [
-      {
-        category: "Appetizers",
-        items: [
-          { name: "Bruschetta alla Nonna", price: 12, description: "Toasted bread with tomatoes, basil, and garlic" },
-          { name: "Antipasto Platter", price: 18, description: "Selection of cured meats, cheeses, and olives" },
-          { name: "Calamari Fritti", price: 16, description: "Crispy fried squid with marinara sauce" }
-        ]
-      },
-      {
-        category: "Main Courses",
-        items: [
-          { name: "Osso Buco", price: 32, description: "Braised veal shanks with risotto Milanese" },
-          { name: "Spaghetti Carbonara", price: 24, description: "Traditional Roman pasta with pancetta and egg" },
-          { name: "Branzino al Sale", price: 28, description: "Mediterranean sea bass baked in sea salt" }
-        ]
-      },
-      {
-        category: "Desserts",
-        items: [
-          { name: "Tiramisu", price: 8, description: "Classic Italian coffee-flavored dessert" },
-          { name: "Panna Cotta", price: 7, description: "Vanilla custard with berry compote" }
-        ]
-      }
-    ],
-    reviews: [
-      {
-        id: 1,
-        name: "Sarah Johnson",
-        rating: 5,
-        date: "2 days ago",
-        comment: "Absolutely incredible dining experience! The osso buco was perfectly tender and the service was impeccable."
-      },
-      {
-        id: 2,
-        name: "Mike Chen",
-        rating: 5,
-        date: "1 week ago",
-        comment: "Best Italian restaurant in the city. The wine selection is outstanding and the atmosphere is perfect for date night."
-      },
-      {
-        id: 3,
-        name: "Emma Davis",
-        rating: 4,
-        date: "2 weeks ago",
-        comment: "Great food and ambiance. The carbonara was authentic and delicious. Will definitely be back!"
-      }
-    ]
-  }
-}
+]
 
 interface RestaurantPageProps {
   params: Promise<{
@@ -103,13 +24,67 @@ interface RestaurantPageProps {
   }>
 }
 
-export default async function RestaurantPage({ params }: RestaurantPageProps) {
-  const { id } = await params
-  const restaurant = restaurants[id as keyof typeof restaurants]
+export default function RestaurantPage({ params }: RestaurantPageProps) {
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  if (!restaurant) {
+  useEffect(() => {
+    async function fetchRestaurant() {
+      try {
+        const { id } = await params
+        const response = await restaurantAPI.getAll()
+        const restaurants = response.data.restaurants
+        const foundRestaurant = restaurants.find((r: Restaurant) => r.id.toString() === id)
+        
+        if (!foundRestaurant) {
     notFound()
+          return
+        }
+        
+        setRestaurant(foundRestaurant)
+      } catch (err) {
+        console.error('Error fetching restaurant:', err)
+        setError('Failed to load restaurant')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchRestaurant()
+  }, [params])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen">
+        <div className="h-[400px] md:h-[500px] bg-gray-200 animate-pulse"></div>
+        <div className="container mx-auto px-4 py-8">
+          <div className="h-8 bg-gray-200 rounded mb-4 animate-pulse"></div>
+          <div className="h-4 bg-gray-200 rounded mb-2 animate-pulse"></div>
+          <div className="h-4 bg-gray-200 rounded w-2/3 animate-pulse"></div>
+        </div>
+      </div>
+    )
   }
+
+  if (error || !restaurant) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-2">Restaurant Not Found</h1>
+          <p className="text-muted-foreground">{error || 'The restaurant you are looking for does not exist.'}</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Calculate active offers
+  const activeOffers = restaurant.offers.filter(
+    offer => offer.isActive && new Date(offer.expiresAt) > new Date()
+  )
+
+  // Use restaurant image or default
+  const restaurantImages = restaurant.image ? [restaurant.image, ...defaultImages] : defaultImages
 
   return (
     <div className="min-h-screen">
@@ -118,7 +93,7 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 h-full">
           <div className="relative col-span-1 md:col-span-1 lg:col-span-2">
             <Image
-              src={restaurant.images[0]}
+              src={restaurantImages[0]}
               alt={restaurant.name}
               fill
               className="object-cover rounded-lg"
@@ -128,7 +103,7 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
           <div className="hidden lg:grid grid-rows-2 gap-2">
             <div className="relative">
               <Image
-                src={restaurant.images[1]}
+                src={restaurantImages[1]}
                 alt={`${restaurant.name} interior`}
                 fill
                 className="object-cover rounded-lg"
@@ -136,7 +111,7 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
             </div>
             <div className="relative">
               <Image
-                src={restaurant.images[2]}
+                src={restaurantImages[2]}
                 alt={`${restaurant.name} food`}
                 fill
                 className="object-cover rounded-lg"
@@ -181,14 +156,18 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">{restaurant.location}</span>
                 </div>
+                {restaurant.hours && (
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{restaurant.deliveryTime}</span>
+                    <span className="text-sm">{restaurant.hours}</span>
                 </div>
+                )}
+                {restaurant.phone && (
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">{restaurant.phone}</span>
                 </div>
+                )}
               </div>
 
               <p className="text-muted-foreground leading-relaxed">{restaurant.description}</p>
@@ -198,7 +177,7 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
             <div>
               <h2 className="text-2xl font-bold mb-6">🔥 Current Deals</h2>
               <div className="grid gap-4">
-                {restaurant.deals.map((deal) => (
+                {activeOffers.length > 0 ? activeOffers.map((deal) => (
                   <Card key={deal.id} className="border-l-4 border-l-green-500">
                     <CardContent className="p-6">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -209,7 +188,9 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
                               {deal.discount}% OFF
                             </Badge>
                           </div>
+                          {deal.description && (
                           <p className="text-muted-foreground mb-2">{deal.description}</p>
+                          )}
                           <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
                               <span className="text-xl font-bold text-green-600">${deal.discountedPrice}</span>
@@ -217,10 +198,12 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
                             </div>
                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
                               <Calendar className="h-3 w-3" />
-                              Expires in {deal.expiresIn}
+                              Expires {new Date(deal.expiresAt).toLocaleDateString()}
                             </div>
                           </div>
+                          {deal.terms && (
                           <p className="text-xs text-muted-foreground mt-2">{deal.terms}</p>
+                          )}
                         </div>
                         <Button className="md:w-auto w-full">
                           Claim Deal
@@ -228,78 +211,48 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                )) : (
+                  <Card className="border-dashed">
+                    <CardContent className="p-6 text-center">
+                      <p className="text-muted-foreground">No active deals at the moment.</p>
+                      <p className="text-sm text-muted-foreground mt-1">Check back later for new offers!</p>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </div>
 
             {/* Menu */}
             <div>
               <h2 className="text-2xl font-bold mb-6">📋 Menu</h2>
-              <div className="space-y-6">
-                {restaurant.menu.map((section) => (
-                  <Card key={section.category}>
-                    <CardHeader>
-                      <CardTitle className="text-xl">{section.category}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {section.items.map((item, index) => (
-                          <div key={index}>
-                            <div className="flex justify-between items-start mb-1">
-                              <h4 className="font-medium">{item.name}</h4>
-                              <span className="font-semibold">${item.price}</span>
-                            </div>
-                            <p className="text-sm text-muted-foreground">{item.description}</p>
-                            {index < section.items.length - 1 && <Separator className="mt-3" />}
-                          </div>
-                        ))}
-                      </div>
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <p className="text-muted-foreground">Menu information not available.</p>
+                  <p className="text-sm text-muted-foreground mt-1">Contact the restaurant directly for menu details.</p>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
             </div>
 
             {/* Reviews */}
             <div>
               <h2 className="text-2xl font-bold mb-6">⭐ Reviews</h2>
-              <div className="space-y-4">
-                {restaurant.reviews.map((review) => (
-                  <Card key={review.id}>
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h4 className="font-semibold">{review.name}</h4>
-                          <div className="flex items-center gap-1 mt-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-4 w-4 ${
-                                  i < review.rating
-                                    ? "fill-yellow-400 text-yellow-400"
-                                    : "text-gray-300"
-                                }`}
-                              />
-                            ))}
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                    <span className="text-lg font-semibold">{restaurant.rating}</span>
+                    <span className="text-muted-foreground">({restaurant.reviewCount} reviews)</span>
                           </div>
-                        </div>
-                        <span className="text-sm text-muted-foreground">{review.date}</span>
-                      </div>
-                      <p className="text-muted-foreground">{review.comment}</p>
+                  <p className="text-muted-foreground">Individual reviews coming soon!</p>
                     </CardContent>
                   </Card>
-                ))}
-                
-                <div className="text-center">
-                  <Button variant="outline">View All Reviews</Button>
-                </div>
-              </div>
             </div>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Restaurant Hours */}
+            {restaurant.hours && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -311,6 +264,7 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
                 <p className="text-sm">{restaurant.hours}</p>
               </CardContent>
             </Card>
+            )}
 
             {/* Quick Actions */}
             <Card>
