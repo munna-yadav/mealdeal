@@ -15,14 +15,15 @@ datasource db {
 
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  isVerified Boolean @default(false)
-  createdAt DateTime @default(now())
-  tokens    VerificationToken[]
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String   @unique
+  password    String
+  isVerified  Boolean @default(false)
+  createdAt   DateTime @default(now())
+  tokens      VerificationToken[]
   resetTokens PasswordResetToken[]
+  restaurants Restaurant[]
 }
 
 model VerificationToken {
@@ -47,4 +48,45 @@ model PasswordResetToken {
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+model Restaurant {
+  id          Int      @id @default(autoincrement())
+  name        String
+  cuisine     String
+  description String?
+  location    String
+  phone       String?
+  hours       String?
+  rating      Float    @default(0)
+  reviewCount Int      @default(0)
+  image       String?
+  ownerId     Int
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  offers      Offer[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([ownerId])
+  @@index([cuisine])
+}
+
+model Offer {
+  id               Int        @id @default(autoincrement())
+  title            String
+  description      String?
+  originalPrice    Float
+  discountedPrice  Float
+  discount         Int
+  terms            String?
+  expiresAt        DateTime
+  isActive         Boolean    @default(true)
+  restaurantId     Int
+  restaurant       Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@index([restaurantId])
+  @@index([expiresAt])
+  @@index([isActive])
 }
