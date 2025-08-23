@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { useAuthGuard } from "@/hooks/useAuthGuard"
+import { useRestaurantsByOwner } from "@/hooks/useRestaurants"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DealCard } from "@/components/deal-card"
-import { User, Heart, History, Settings, MapPin, Bell, Star, Trash2, Edit } from "lucide-react"
+import { User, Heart, History, Settings, MapPin, Bell, Star, Trash2, Edit, Building2, Plus } from "lucide-react"
 
 // Mock user data
 const userData = {
@@ -126,10 +128,20 @@ const favoriteRestaurants = [
 
 export default function ProfilePage() {
   const { isAuthorized, isLoading, user } = useAuthGuard()
+  const { data: userRestaurants = [], isLoading: isLoadingRestaurants } = useRestaurantsByOwner(user?.id)
+  const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState("saved")
   const [isEditing, setIsEditing] = useState(false)
   const [editedName, setEditedName] = useState(user?.name || "")
   const [editedLocation, setEditedLocation] = useState("Downtown") // TODO: Add location to user model
+
+  // Handle tab from URL params
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab && ['saved', 'restaurants', 'history', 'favorites', 'settings'].includes(tab)) {
+      setActiveTab(tab)
+    }
+  }, [searchParams])
 
   // Show loading while checking auth
   if (isLoading) {
@@ -150,6 +162,7 @@ export default function ProfilePage() {
 
   const tabs = [
     { id: "saved", label: "Saved Deals", icon: Heart, count: savedDeals.length },
+    { id: "restaurants", label: "My Restaurants", icon: Building2, count: userRestaurants.length },
     { id: "history", label: "Order History", icon: History, count: dealHistory.length },
     { id: "favorites", label: "Favorite Restaurants", icon: Star, count: favoriteRestaurants.length },
     { id: "settings", label: "Settings", icon: Settings, count: null }
@@ -308,6 +321,102 @@ export default function ProfilePage() {
                     Start saving deals you're interested in for easy access later
                   </p>
                   <Button>Browse Deals</Button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "restaurants" && (
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold">My Restaurants</h2>
+                <div className="flex items-center gap-4">
+                  <p className="text-muted-foreground">{userRestaurants.length} restaurants</p>
+                  <Button asChild>
+                    <a href="/restaurant/add">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Restaurant
+                    </a>
+                  </Button>
+                </div>
+              </div>
+              
+              {isLoadingRestaurants ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[1, 2, 3].map((i) => (
+                    <Card key={i} className="animate-pulse">
+                      <div className="h-48 bg-gray-200 rounded-t-lg"></div>
+                      <CardContent className="p-4">
+                        <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                        <div className="h-3 bg-gray-200 rounded mb-1"></div>
+                        <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : userRestaurants.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {userRestaurants.map((restaurant) => (
+                    <Card key={restaurant.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                      <div className="relative h-48">
+                        <Image
+                          src={restaurant.image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop"}
+                          alt={restaurant.name}
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="absolute top-2 right-2">
+                          <Badge variant="secondary" className="bg-white/90 text-black">
+                            {restaurant.offers.filter(offer => offer.isActive && new Date(offer.expiresAt) > new Date()).length} active offers
+                          </Badge>
+                        </div>
+                      </div>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <h3 className="text-lg font-semibold line-clamp-1">{restaurant.name}</h3>
+                          <div className="flex items-center gap-1 text-sm">
+                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                            <span>{restaurant.rating.toFixed(1)}</span>
+                          </div>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">{restaurant.cuisine}</p>
+                        <div className="flex items-center text-sm text-muted-foreground mb-3">
+                          <MapPin className="w-4 h-4 mr-1" />
+                          <span className="line-clamp-1">{restaurant.location}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">
+                            {restaurant.reviewCount} reviews
+                          </span>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline">
+                              <Edit className="w-3 h-3 mr-1" />
+                              Edit
+                            </Button>
+                            <Button size="sm" variant="outline" asChild>
+                              <a href={`/restaurant/${restaurant.id}`}>
+                                View
+                              </a>
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16">
+                  <Building2 className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-xl font-semibold mb-2">No restaurants yet</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Create your first restaurant listing to start offering deals to customers
+                  </p>
+                  <Button asChild>
+                    <a href="/restaurant/add">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Your First Restaurant
+                    </a>
+                  </Button>
                 </div>
               )}
             </div>
