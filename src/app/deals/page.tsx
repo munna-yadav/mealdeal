@@ -1,151 +1,68 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DealCard } from "@/components/deal-card"
 import { Search, Filter, SlidersHorizontal } from "lucide-react"
+import { useOffers } from "@/hooks/useOffers"
 
-// Mock data for deals
-const allDeals = [
-  {
-    id: "1",
-    title: "3-Course Italian Dinner for Two",
-    restaurant: {
-      name: "Bella Vista",
-      rating: 4.8,
-      location: "Downtown"
-    },
-    discount: 50,
-    originalPrice: 120,
-    discountedPrice: 60,
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=600&fit=crop",
-    expiresIn: "2 days",
-    cuisine: "Italian",
-    isFavorite: false
-  },
-  {
-    id: "2", 
-    title: "All-You-Can-Eat Sushi",
-    restaurant: {
-      name: "Sakura Sushi",
-      rating: 4.6,
-      location: "Midtown"
-    },
-    discount: 30,
-    originalPrice: 80,
-    discountedPrice: 56,
-    image: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=800&h=600&fit=crop",
-    expiresIn: "5 hours",
-    cuisine: "Japanese",
-    isFavorite: true
-  },
-  {
-    id: "3",
-    title: "Gourmet Burger & Craft Beer",
-    restaurant: {
-      name: "Urban Grill",
-      rating: 4.4,
-      location: "West Side"
-    },
-    discount: 25,
-    originalPrice: 32,
-    discountedPrice: 24,
-    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=600&fit=crop",
-    expiresIn: "1 day",
-    cuisine: "American",
-    isFavorite: false
-  },
-  {
-    id: "4",
-    title: "Authentic Butter Chicken & Naan",
-    restaurant: {
-      name: "Spice Route",
-      rating: 4.7,
-      location: "East Village"
-    },
-    discount: 40,
-    originalPrice: 45,
-    discountedPrice: 27,
-    image: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=800&h=600&fit=crop",
-    expiresIn: "3 days",
-    cuisine: "Indian",
-    isFavorite: false
-  },
-  {
-    id: "5",
-    title: "Fresh Poke Bowl & Smoothie",
-    restaurant: {
-      name: "Ocean Fresh",
-      rating: 4.5,
-      location: "Beachside"
-    },
-    discount: 35,
-    originalPrice: 28,
-    discountedPrice: 18,
-    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&h=600&fit=crop",
-    expiresIn: "6 hours",
-    cuisine: "Hawaiian",
-    isFavorite: true
-  },
-  {
-    id: "6",
-    title: "BBQ Ribs Feast for Family",
-    restaurant: {
-      name: "Smoky Joe's",
-      rating: 4.3,
-      location: "Southside"
-    },
-    discount: 45,
-    originalPrice: 85,
-    discountedPrice: 47,
-    image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&h=600&fit=crop",
-    expiresIn: "4 days",
-    cuisine: "BBQ",
-    isFavorite: false
-  },
-  {
-    id: "7",
-    title: "Authentic Ramen & Gyoza",
-    restaurant: {
-      name: "Noodle Bar",
-      rating: 4.6,
-      location: "Little Tokyo"
-    },
-    discount: 20,
-    originalPrice: 35,
-    discountedPrice: 28,
-    image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&h=600&fit=crop",
-    expiresIn: "1 day",
-    cuisine: "Japanese",
-    isFavorite: false
-  },
-  {
-    id: "8",
-    title: "Taco Tuesday Special",
-    restaurant: {
-      name: "La Cantina",
-      rating: 4.2,
-      location: "Mexican Quarter"
-    },
-    discount: 30,
-    originalPrice: 25,
-    discountedPrice: 18,
-    image: "https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=800&h=600&fit=crop",
-    expiresIn: "12 hours",
-    cuisine: "Mexican",
-    isFavorite: true
+// Helper function to calculate days until expiry
+const getDaysUntilExpiry = (expiresAt: string) => {
+  const now = new Date()
+  const expiry = new Date(expiresAt)
+  const diffTime = expiry.getTime() - now.getTime()
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  
+  if (diffDays < 1) {
+    const diffHours = Math.ceil(diffTime / (1000 * 60 * 60))
+    return diffHours > 0 ? `${diffHours} hours` : 'Expired'
   }
-]
+  return `${diffDays} days`
+}
 
 export default function DealsPage() {
+  const searchParams = useSearchParams()
+  const { data: offers = [], isLoading, error } = useOffers(true) // Only active offers
+  
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCuisine, setSelectedCuisine] = useState("all")
   const [selectedLocation, setSelectedLocation] = useState("all")
   const [selectedDiscount, setSelectedDiscount] = useState("all")
   const [sortBy, setSortBy] = useState("discount")
+
+  // Handle URL parameters (e.g., from category clicks on home page)
+  useEffect(() => {
+    const cuisine = searchParams.get('cuisine')
+    if (cuisine) {
+      setSelectedCuisine(cuisine)
+    }
+  }, [searchParams])
+
+  // Convert offers to deal format for DealCard component
+  const allDeals = offers.map(offer => ({
+    id: offer.id.toString(),
+    title: offer.title,
+    restaurant: {
+      name: offer.restaurant.name,
+      rating: offer.restaurant.rating,
+      location: offer.restaurant.location
+    },
+    discount: offer.discount,
+    originalPrice: offer.originalPrice,
+    discountedPrice: offer.discountedPrice,
+    image: offer.restaurant.image || "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=600&fit=crop",
+    expiresIn: getDaysUntilExpiry(offer.expiresAt),
+    cuisine: offer.restaurant.cuisine,
+    isFavorite: false // TODO: Implement favorites functionality
+  }))
+
+  // Get unique cuisines and locations for filters
+  const cuisines = [...new Set(offers.map(offer => offer.restaurant.cuisine))].sort()
+  const locations = [...new Set(offers.map(offer => offer.restaurant.location))].sort()
 
   // Filter and sort deals
   const filteredDeals = allDeals
@@ -185,8 +102,16 @@ export default function DealsPage() {
       }
     })
 
-  const cuisines = [...new Set(allDeals.map(deal => deal.cuisine))]
-  const locations = [...new Set(allDeals.map(deal => deal.restaurant.location))]
+  if (error) {
+    return (
+      <div className="min-h-screen py-8 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-2">Error Loading Deals</h2>
+          <p className="text-muted-foreground">Please try again later</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen py-8">
@@ -333,7 +258,18 @@ export default function DealsPage() {
         </div>
 
         {/* Deals Grid */}
-        {filteredDeals.length > 0 ? (
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="bg-gray-200 h-48 rounded-lg mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded mb-1"></div>
+                <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+              </div>
+            ))}
+          </div>
+        ) : filteredDeals.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredDeals.map((deal) => (
               <DealCard key={deal.id} {...deal} />
@@ -371,4 +307,5 @@ export default function DealsPage() {
     </div>
   )
 }
+
 

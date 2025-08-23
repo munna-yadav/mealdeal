@@ -1,3 +1,6 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -5,120 +8,95 @@ import { DealCard } from "@/components/deal-card"
 import { RestaurantCard } from "@/components/restaurant-card"
 import { Search, MapPin, Star, TrendingUp } from "lucide-react"
 import Link from "next/link"
+import { useRestaurants } from "@/hooks/useRestaurants"
+import { useOffers } from "@/hooks/useOffers"
 
-// Mock data for demonstration
-const featuredDeals = [
-  {
-    id: "1",
-    title: "3-Course Italian Dinner for Two",
-    restaurant: {
-      name: "Bella Vista",
-      rating: 4.8,
-      location: "Downtown"
-    },
-    discount: 50,
-    originalPrice: 120,
-    discountedPrice: 60,
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=600&fit=crop",
-    expiresIn: "2 days",
-    cuisine: "Italian",
-    isFavorite: false
-  },
-  {
-    id: "2", 
-    title: "All-You-Can-Eat Sushi",
-    restaurant: {
-      name: "Sakura Sushi",
-      rating: 4.6,
-      location: "Midtown"
-    },
-    discount: 30,
-    originalPrice: 80,
-    discountedPrice: 56,
-    image: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=800&h=600&fit=crop",
-    expiresIn: "5 hours",
-    cuisine: "Japanese",
-    isFavorite: true
-  },
-  {
-    id: "3",
-    title: "Gourmet Burger & Craft Beer",
-    restaurant: {
-      name: "Urban Grill",
-      rating: 4.4,
-      location: "West Side"
-    },
-    discount: 25,
-    originalPrice: 32,
-    discountedPrice: 24,
-    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=600&fit=crop",
-    expiresIn: "1 day",
-    cuisine: "American",
-    isFavorite: false
+// Helper function to calculate days until expiry
+const getDaysUntilExpiry = (expiresAt: string) => {
+  const now = new Date()
+  const expiry = new Date(expiresAt)
+  const diffTime = expiry.getTime() - now.getTime()
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  
+  if (diffDays < 1) {
+    const diffHours = Math.ceil(diffTime / (1000 * 60 * 60))
+    return diffHours > 0 ? `${diffHours} hours` : 'Expired'
   }
-]
+  return `${diffDays} days`
+}
 
-const popularRestaurants = [
-  {
-    id: "1",
-    name: "Bella Vista",
-    cuisine: "Italian • Fine Dining",
-    rating: 4.8,
-    reviewCount: 324,
-    location: "Downtown",
-    deliveryTime: "25-35 min",
-    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=600&fit=crop",
-    dealCount: 3,
-    minDiscount: 50
-  },
-  {
-    id: "2",
-    name: "Sakura Sushi",
-    cuisine: "Japanese • Sushi Bar",
-    rating: 4.6,
-    reviewCount: 198,
-    location: "Midtown",
-    deliveryTime: "20-30 min",
-    image: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=800&h=600&fit=crop",
-    dealCount: 2,
-    minDiscount: 30
-  },
-  {
-    id: "3",
-    name: "Urban Grill",
-    cuisine: "American • Burgers",
-    rating: 4.4,
-    reviewCount: 156,
-    location: "West Side",
-    deliveryTime: "15-25 min",
-    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=600&fit=crop",
-    dealCount: 1,
-    minDiscount: 25
-  },
-  {
-    id: "4",
-    name: "Spice Route",
-    cuisine: "Indian • Curry House",
-    rating: 4.7,
-    reviewCount: 267,
-    location: "East Village",
-    deliveryTime: "30-40 min",
-    image: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=800&h=600&fit=crop",
-    dealCount: 4,
-    minDiscount: 40
-  }
-]
-
+// Static categories with dynamic counts (will be calculated from real data)
 const categories = [
-  { name: "Italian", icon: "🍝", deals: 12 },
-  { name: "Japanese", icon: "🍱", deals: 8 },
-  { name: "American", icon: "🍔", deals: 15 },
-  { name: "Mexican", icon: "🌮", deals: 9 },
-  { name: "Chinese", icon: "🥡", deals: 11 },
-  { name: "Indian", icon: "🍛", deals: 7 },
+  { name: "Italian", icon: "🍝" },
+  { name: "Japanese", icon: "🍱" },
+  { name: "American", icon: "🍔" },
+  { name: "Mexican", icon: "🌮" },
+  { name: "Chinese", icon: "🥡" },
+  { name: "Indian", icon: "🍛" },
+  { name: "BBQ", icon: "🍖" },
+  { name: "Hawaiian", icon: "🌺" },
 ]
 
 export default function Home() {
+  const { data: restaurants = [], isLoading: restaurantsLoading } = useRestaurants()
+  const { data: offers = [], isLoading: offersLoading } = useOffers(true) // Only active offers
+
+  // Get featured deals (first 3 offers)
+  const featuredDeals = offers.slice(0, 3).map(offer => ({
+    id: offer.id.toString(),
+    title: offer.title,
+    restaurant: {
+      name: offer.restaurant.name,
+      rating: offer.restaurant.rating,
+      location: offer.restaurant.location
+    },
+    discount: offer.discount,
+    originalPrice: offer.originalPrice,
+    discountedPrice: offer.discountedPrice,
+    image: offer.restaurant.image || "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=600&fit=crop",
+    expiresIn: getDaysUntilExpiry(offer.expiresAt),
+    cuisine: offer.restaurant.cuisine,
+    isFavorite: false
+  }))
+
+  // Get popular restaurants (first 4 restaurants)
+  const popularRestaurants = restaurants.slice(0, 4).map(restaurant => {
+    const activeOffers = restaurant.offers.filter(offer => 
+      offer.isActive && new Date(offer.expiresAt) > new Date()
+    )
+    const minDiscount = activeOffers.length > 0 
+      ? Math.min(...activeOffers.map(offer => offer.discount))
+      : 0
+
+    return {
+      id: restaurant.id.toString(),
+      name: restaurant.name,
+      cuisine: restaurant.cuisine,
+      rating: restaurant.rating,
+      reviewCount: restaurant.reviewCount,
+      location: restaurant.location,
+      deliveryTime: restaurant.hours || "Contact for hours",
+      image: restaurant.image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=600&fit=crop",
+      dealCount: activeOffers.length,
+      minDiscount
+    }
+  })
+
+  // Calculate category counts from real data
+  const categoriesWithCounts = categories.map(category => {
+    const matchingRestaurants = restaurants.filter(r => 
+      r.cuisine.toLowerCase().includes(category.name.toLowerCase())
+    )
+    const totalDeals = matchingRestaurants.reduce((sum, r) => 
+      sum + r.offers.filter(o => o.isActive && new Date(o.expiresAt) > new Date()).length, 0
+    )
+    
+    return {
+      ...category,
+      deals: totalDeals
+    }
+  })
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -198,7 +176,7 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {categories.map((category) => (
+            {categoriesWithCounts.map((category) => (
               <Link
                 key={category.name}
                 href={`/deals?cuisine=${category.name.toLowerCase()}`}
@@ -233,9 +211,25 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredDeals.map((deal) => (
-              <DealCard key={deal.id} {...deal} />
-            ))}
+            {offersLoading ? (
+              // Loading skeleton
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="bg-gray-200 h-48 rounded-lg mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded mb-1"></div>
+                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                </div>
+              ))
+            ) : featuredDeals.length > 0 ? (
+              featuredDeals.map((deal) => (
+                <DealCard key={deal.id} {...deal} />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-muted-foreground">No featured deals available at the moment.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -257,9 +251,25 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {popularRestaurants.map((restaurant) => (
-              <RestaurantCard key={restaurant.id} {...restaurant} />
-            ))}
+            {restaurantsLoading ? (
+              // Loading skeleton
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="bg-gray-200 h-48 rounded-lg mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded mb-1"></div>
+                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                </div>
+              ))
+            ) : popularRestaurants.length > 0 ? (
+              popularRestaurants.map((restaurant) => (
+                <RestaurantCard key={restaurant.id} {...restaurant} />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-muted-foreground">No restaurants available at the moment.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>

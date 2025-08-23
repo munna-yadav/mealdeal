@@ -26,105 +26,10 @@ const userData = {
   avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
 }
 
-// Mock saved deals
-const savedDeals = [
-  {
-    id: "1",
-    title: "3-Course Italian Dinner for Two",
-    restaurant: {
-      name: "Bella Vista",
-      rating: 4.8,
-      location: "Downtown"
-    },
-    discount: 50,
-    originalPrice: 120,
-    discountedPrice: 60,
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=600&fit=crop",
-    expiresIn: "2 days",
-    cuisine: "Italian",
-    isFavorite: true,
-    savedDate: "2 hours ago"
-  },
-  {
-    id: "2", 
-    title: "All-You-Can-Eat Sushi",
-    restaurant: {
-      name: "Sakura Sushi",
-      rating: 4.6,
-      location: "Midtown"
-    },
-    discount: 30,
-    originalPrice: 80,
-    discountedPrice: 56,
-    image: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=800&h=600&fit=crop",
-    expiresIn: "5 hours",
-    cuisine: "Japanese",
-    isFavorite: true,
-    savedDate: "1 day ago"
-  }
-]
-
-// Mock deal history
-const dealHistory = [
-  {
-    id: "h1",
-    title: "Gourmet Burger & Craft Beer",
-    restaurant: "Urban Grill",
-    originalPrice: 32,
-    paidPrice: 24,
-    savings: 8,
-    date: "March 15, 2024",
-    status: "used"
-  },
-  {
-    id: "h2",
-    title: "Thai Curry Feast",
-    restaurant: "Bangkok Bistro",
-    originalPrice: 45,
-    paidPrice: 32,
-    savings: 13,
-    date: "March 10, 2024",
-    status: "used"
-  },
-  {
-    id: "h3",
-    title: "Mexican Taco Platter",
-    restaurant: "La Cantina",
-    originalPrice: 28,
-    paidPrice: 18,
-    savings: 10,
-    date: "March 5, 2024",
-    status: "expired"
-  }
-]
-
-// Mock favorite restaurants
-const favoriteRestaurants = [
-  {
-    id: "1",
-    name: "Bella Vista",
-    cuisine: "Italian",
-    rating: 4.8,
-    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=300&h=200&fit=crop",
-    activeDeals: 3
-  },
-  {
-    id: "2",
-    name: "Sakura Sushi",
-    cuisine: "Japanese",
-    rating: 4.6,
-    image: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=300&h=200&fit=crop",
-    activeDeals: 2
-  },
-  {
-    id: "3",
-    name: "Spice Route",
-    cuisine: "Indian",
-    rating: 4.7,
-    image: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=300&h=200&fit=crop",
-    activeDeals: 4
-  }
-]
+// Placeholder data - these features will be implemented later
+const savedDeals: any[] = []
+const dealHistory: any[] = []
+const favoriteRestaurants: any[] = []
 
 export default function ProfilePage() {
   const { isAuthorized, isLoading, user } = useAuthGuard()
