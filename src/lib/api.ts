@@ -56,6 +56,48 @@ export const authAPI = {
   verify: (token: string) => api.get(`/auth/verify?token=${token}`),
 }
 
+// Restaurant API functions
+export const restaurantAPI = {
+  // Create restaurant
+  create: (data: {
+    name: string
+    cuisine: string
+    description?: string
+    location: string
+    phone?: string
+    hours?: string
+    image?: string
+  }) => api.post('/restaurants', data),
+  
+  // Get restaurants
+  getAll: () => api.get('/restaurants'),
+  
+  // Get restaurants by owner
+  getByOwner: (ownerId: number) => api.get(`/restaurants?ownerId=${ownerId}`),
+}
+
+// Offer API functions
+export const offerAPI = {
+  // Create offer
+  create: (data: {
+    title: string
+    description?: string
+    originalPrice: string
+    discountedPrice: string
+    discount: string
+    terms?: string
+    expiresAt: string
+    restaurantId: string
+  }) => api.post('/offers', data),
+  
+  // Get offers
+  getAll: (activeOnly = false) => api.get(`/offers?activeOnly=${activeOnly}`),
+  
+  // Get offers by restaurant
+  getByRestaurant: (restaurantId: number, activeOnly = false) => 
+    api.get(`/offers?restaurantId=${restaurantId}&activeOnly=${activeOnly}`),
+}
+
 // User types
 export interface User {
   id: number
@@ -64,4 +106,6 @@ export interface User {
   isVerified: boolean
   createdAt: string
 }
+
+
 
