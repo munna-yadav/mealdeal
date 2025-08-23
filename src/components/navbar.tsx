@@ -7,7 +7,7 @@ import { NavigationMenu, NavigationMenuItem, NavigationMenuList, NavigationMenuL
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Search, User, Heart, Menu, LogOut, Settings, UserCircle } from "lucide-react"
+import { Search, User, Heart, Menu, LogOut, Settings, UserCircle, Building2, Tag, Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/hooks/useAuth"
 
@@ -19,6 +19,7 @@ export function Navbar() {
   const navigation = [
     { name: "Home", href: "/" },
     { name: "Deals", href: "/deals" },
+    { name: "Restaurants", href: "/restaurants" },
     ...(isAuthenticated ? [{ name: "Profile", href: "/profile" }] : []),
   ]
 
@@ -123,6 +124,20 @@ export function Navbar() {
                     <span>Profile</span>
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/restaurant/add" className="cursor-pointer">
+                    <Building2 className="mr-2 h-4 w-4" />
+                    <span>Add Restaurant</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/offer/add" className="cursor-pointer">
+                    <Tag className="mr-2 h-4 w-4" />
+                    <span>Add Offer</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/profile?tab=settings" className="cursor-pointer">
                     <Settings className="mr-2 h-4 w-4" />

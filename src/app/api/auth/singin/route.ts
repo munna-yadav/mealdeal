@@ -24,8 +24,8 @@ export async function POST(req: Request) {
   }
 
   // 4️⃣ Create tokens
-  const accessToken = signAccessToken({ userId: user.id });
-  const refreshToken = signRefreshToken({ userId: user.id });
+  const accessToken = signAccessToken({ userId: user.id, email: user.email });
+  const refreshToken = signRefreshToken({ userId: user.id, email: user.email });
 
   // 5️⃣ Set cookies
   const isProduction = process.env.NODE_ENV === 'production'

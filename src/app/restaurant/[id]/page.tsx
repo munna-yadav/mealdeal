@@ -98,13 +98,14 @@ const restaurants = {
 }
 
 interface RestaurantPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
-export default function RestaurantPage({ params }: RestaurantPageProps) {
-  const restaurant = restaurants[params.id as keyof typeof restaurants]
+export default async function RestaurantPage({ params }: RestaurantPageProps) {
+  const { id } = await params
+  const restaurant = restaurants[id as keyof typeof restaurants]
 
   if (!restaurant) {
     notFound()
@@ -382,4 +383,5 @@ export default function RestaurantPage({ params }: RestaurantPageProps) {
     </div>
   )
 }
+
 
