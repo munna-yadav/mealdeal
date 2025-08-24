@@ -15,6 +15,8 @@ export interface Restaurant {
   cuisine: string
   description?: string
   location: string
+  latitude?: number
+  longitude?: number
   phone?: string
   hours?: string
   rating: number
