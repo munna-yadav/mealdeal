@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { DealCard } from "@/components/deal-card"
 import { RestaurantCard } from "@/components/restaurant-card"
-import { Search, MapPin, Star, TrendingUp } from "lucide-react"
+import { Search, Star, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import { useRestaurants } from "@/hooks/useRestaurants"
 import { useOffers } from "@/hooks/useOffers"
@@ -126,22 +126,11 @@ export default function Home() {
             
               {/* Search Bar */}
               <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  placeholder="Search restaurants, cuisines, or dishes..."
-                  className="pl-10 h-12"
-                />
-              </div>
-              <div className="relative sm:w-48">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  placeholder="Location"
-                  className="pl-10 h-12"
-                />
-              </div>
-                <Button size="lg" className="h-12 px-8 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 border-0 shadow-lg hover:shadow-xl transition-all duration-200">
-                  Search Deals
+                <Button size="lg" asChild className="h-12 px-8 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 border-0 shadow-lg hover:shadow-xl transition-all duration-200">
+                  <Link href="/restaurants">
+                    <Search className="mr-2 h-4 w-4" />
+                    Search Restaurants & Deals
+                  </Link>
                 </Button>
               </div>
             
