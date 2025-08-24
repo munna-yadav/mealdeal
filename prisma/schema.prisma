@@ -24,6 +24,8 @@ model User {
   tokens      VerificationToken[]
   resetTokens PasswordResetToken[]
   restaurants Restaurant[]
+  reservations Reservation[]
+  claimedDeals ClaimedDeal[]
 }
 
 model VerificationToken {
@@ -66,6 +68,7 @@ model Restaurant {
   ownerId     Int
   owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   offers      Offer[]
+  reservations Reservation[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -86,10 +89,64 @@ model Offer {
   isActive         Boolean    @default(true)
   restaurantId     Int
   restaurant       Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  claimedDeals     ClaimedDeal[]
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
 
   @@index([restaurantId])
   @@index([expiresAt])
   @@index([isActive])
+}
+
+model Reservation {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurantId Int
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  date         DateTime
+  time         String
+  partySize    Int
+  specialRequests String?
+  status       ReservationStatus @default(PENDING)
+  phoneNumber  String?
+  email        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+  @@index([restaurantId])
+  @@index([date])
+  @@index([status])
+}
+
+model ClaimedDeal {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  offerId      Int
+  offer        Offer    @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  claimedAt    DateTime @default(now())
+  redeemedAt   DateTime?
+  status       ClaimStatus @default(CLAIMED)
+  redemptionCode String @unique
+  notes        String?
+
+  @@index([userId])
+  @@index([offerId])
+  @@index([redemptionCode])
+  @@index([status])
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum ClaimStatus {
+  CLAIMED
+  REDEEMED
+  EXPIRED
 }
