@@ -1,9 +1,13 @@
 import Image from "next/image"
 import Link from "next/link"
+import { useState } from "react"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Star, Clock, MapPin, Heart } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import { Star, Clock, MapPin, Heart, Gift } from "lucide-react"
+import { dealsAPI } from "@/lib/api"
+import { useAuth } from "@/hooks/useAuth"
 
 interface DealCardProps {
   id: string
@@ -34,6 +38,43 @@ export function DealCard({
   cuisine,
   isFavorite = false 
 }: DealCardProps) {
+  const [isClaimingDeal, setIsClaimingDeal] = useState(false)
+  const [isDealClaimed, setIsDealClaimed] = useState(false)
+  const { toast } = useToast()
+  const { isAuthenticated, user } = useAuth()
+
+  const handleClaimDeal = async (e: React.MouseEvent) => {
+    e.preventDefault() // Prevent card click
+    e.stopPropagation()
+
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to claim deals",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsClaimingDeal(true)
+    try {
+      const response = await dealsAPI.claim(parseInt(id))
+      
+      setIsDealClaimed(true)
+      toast({
+        title: "Deal claimed successfully! 🎉",
+        description: `Redemption code: ${response.data.claimedDeal.redemptionCode}`,
+      })
+    } catch (error: any) {
+      toast({
+        title: "Failed to claim deal",
+        description: error.response?.data?.error || "Please try again later",
+        variant: "destructive"
+      })
+    } finally {
+      setIsClaimingDeal(false)
+    }
+  }
   return (
     <Card className="group overflow-hidden transition-all duration-200 hover:shadow-lg hover:scale-[1.02]">
       <CardHeader className="p-0">
@@ -96,12 +137,38 @@ export function DealCard({
         </div>
       </CardContent>
       
-      <CardFooter className="p-4 pt-0">
-        <Button asChild className="w-full">
-          <Link href={`/restaurant/${id}`}>
-            View Deal
-          </Link>
-        </Button>
+      <CardFooter className="p-4 pt-0 space-y-2">
+        <div className="grid grid-cols-2 gap-2 w-full">
+          <Button 
+            variant="outline" 
+            size="sm"
+            asChild
+          >
+            <Link href={`/restaurant/${id}`}>
+              View Details
+            </Link>
+          </Button>
+          <Button 
+            size="sm"
+            onClick={handleClaimDeal}
+            disabled={isClaimingDeal || isDealClaimed}
+            className={isDealClaimed ? "bg-green-600 hover:bg-green-700" : ""}
+          >
+            {isDealClaimed ? (
+              <>
+                <Gift className="w-4 h-4 mr-1" />
+                Claimed!
+              </>
+            ) : isClaimingDeal ? (
+              "Claiming..."
+            ) : (
+              <>
+                <Gift className="w-4 h-4 mr-1" />
+                Claim Deal
+              </>
+            )}
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   )
