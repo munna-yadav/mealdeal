@@ -64,13 +64,35 @@ export const restaurantAPI = {
     cuisine: string
     description?: string
     location: string
+    latitude?: number
+    longitude?: number
     phone?: string
     hours?: string
     image?: string
   }) => api.post('/restaurants', data),
   
-  // Get restaurants
-  getAll: () => api.get('/restaurants'),
+  // Get restaurants with search and location filtering
+  getAll: (params?: {
+    search?: string
+    cuisine?: string
+    location?: string
+    lat?: number
+    lng?: number
+    radius?: number
+    sortBy?: string
+  }) => {
+    const searchParams = new URLSearchParams()
+    if (params?.search) searchParams.append('search', params.search)
+    if (params?.cuisine) searchParams.append('cuisine', params.cuisine)
+    if (params?.location) searchParams.append('location', params.location)
+    if (params?.lat) searchParams.append('lat', params.lat.toString())
+    if (params?.lng) searchParams.append('lng', params.lng.toString())
+    if (params?.radius) searchParams.append('radius', params.radius.toString())
+    if (params?.sortBy) searchParams.append('sortBy', params.sortBy)
+    
+    const queryString = searchParams.toString()
+    return api.get(`/restaurants${queryString ? `?${queryString}` : ''}`)
+  },
   
   // Get restaurants by owner
   getByOwner: (ownerId: number) => api.get(`/restaurants?ownerId=${ownerId}`),
@@ -90,8 +112,32 @@ export const offerAPI = {
     restaurantId: string
   }) => api.post('/offers', data),
   
-  // Get offers
-  getAll: (activeOnly = false) => api.get(`/offers?activeOnly=${activeOnly}`),
+  // Get offers with search and location filtering
+  getAll: (params?: {
+    activeOnly?: boolean
+    search?: string
+    cuisine?: string
+    location?: string
+    discount?: string
+    lat?: number
+    lng?: number
+    radius?: number
+    sortBy?: string
+  }) => {
+    const searchParams = new URLSearchParams()
+    if (params?.activeOnly) searchParams.append('activeOnly', 'true')
+    if (params?.search) searchParams.append('search', params.search)
+    if (params?.cuisine) searchParams.append('cuisine', params.cuisine)
+    if (params?.location) searchParams.append('location', params.location)
+    if (params?.discount) searchParams.append('discount', params.discount)
+    if (params?.lat) searchParams.append('lat', params.lat.toString())
+    if (params?.lng) searchParams.append('lng', params.lng.toString())
+    if (params?.radius) searchParams.append('radius', params.radius.toString())
+    if (params?.sortBy) searchParams.append('sortBy', params.sortBy)
+    
+    const queryString = searchParams.toString()
+    return api.get(`/offers${queryString ? `?${queryString}` : ''}`)
+  },
   
   // Get offers by restaurant
   getByRestaurant: (restaurantId: number, activeOnly = false) => 

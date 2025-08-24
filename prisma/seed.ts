@@ -22,13 +22,15 @@ async function main() {
 
   console.log('👤 Created demo user:', demoUser.email)
 
-  // Real restaurant data
+  // Real restaurant data with coordinates
   const restaurantsData = [
     {
       name: 'Bella Vista',
       cuisine: 'Italian',
       description: 'Experience authentic Italian cuisine in an elegant atmosphere. Our chefs use traditional recipes passed down through generations, featuring fresh ingredients imported directly from Italy.',
       location: '123 Main St, Downtown',
+      latitude: 40.7831,
+      longitude: -73.9712,
       phone: '(555) 123-4567',
       hours: 'Mon-Sun: 11:00 AM - 10:00 PM',
       rating: 4.8,
@@ -41,6 +43,8 @@ async function main() {
       cuisine: 'Japanese',
       description: 'Authentic Japanese sushi bar with the freshest fish and traditional techniques. Our master sushi chef brings 20 years of experience from Tokyo.',
       location: '456 Cherry Blossom Ave, Midtown',
+      latitude: 40.7484,
+      longitude: -73.9857,
       phone: '(555) 234-5678',
       hours: 'Tue-Sun: 5:00 PM - 11:00 PM',
       rating: 4.6,
@@ -53,6 +57,8 @@ async function main() {
       cuisine: 'American',
       description: 'Modern American cuisine with a focus on locally sourced ingredients. Famous for our gourmet burgers and craft beer selection.',
       location: '789 Liberty St, West Side',
+      latitude: 40.7282,
+      longitude: -74.0776,
       phone: '(555) 345-6789',
       hours: 'Mon-Sun: 12:00 PM - 10:00 PM',
       rating: 4.4,
@@ -65,6 +71,8 @@ async function main() {
       cuisine: 'Indian',
       description: 'Traditional Indian curry house with authentic spices and recipes from various regions of India. Vegetarian and vegan options available.',
       location: '321 Curry Lane, East Village',
+      latitude: 40.7282,
+      longitude: -73.9942,
       phone: '(555) 456-7890',
       hours: 'Mon-Sun: 11:30 AM - 9:30 PM',
       rating: 4.7,

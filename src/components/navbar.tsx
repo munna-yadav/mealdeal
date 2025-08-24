@@ -77,6 +77,13 @@ export function Navbar() {
             variant="ghost" 
             size="icon" 
             className="hidden sm:flex rounded-full hover:bg-gradient-to-r hover:from-yellow-500/10 hover:to-orange-500/10 hover:scale-110 transition-all duration-200"
+            onClick={() => {
+              // If not on restaurants or deals page, navigate to restaurants page
+              if (!pathname.includes('/restaurants') && !pathname.includes('/deals')) {
+                router.push('/restaurants')
+              }
+              // If on restaurants/deals page, focus on search (could add this later)
+            }}
           >
             <Search className="h-4 w-4" />
             <span className="sr-only">Search</span>

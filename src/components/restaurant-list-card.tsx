@@ -101,3 +101,4 @@ export function RestaurantListCard({ restaurant, showOwnerActions = false }: Res
     </Card>
   )
 }
+

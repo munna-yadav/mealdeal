@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import { verifyToken, type JWTPayload } from '@/lib/auth'
+import { calculateDistance, type Coordinates } from '@/lib/geolocation'
 
 const prisma = new PrismaClient()
 
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
 
     // Get request body
     const body = await req.json()
-    const { name, cuisine, description, location, phone, hours, image } = body
+    const { name, cuisine, description, location, latitude, longitude, phone, hours, image } = body
 
     // Validate required fields
     if (!name || !cuisine || !location) {
@@ -44,6 +45,8 @@ export async function POST(req: NextRequest) {
         cuisine,
         description,
         location,
+        latitude: latitude ? parseFloat(latitude) : undefined,
+        longitude: longitude ? parseFloat(longitude) : undefined,
         phone,
         hours,
         image,
@@ -78,64 +81,133 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const ownerId = searchParams.get('ownerId')
+    const search = searchParams.get('search')
+    const cuisine = searchParams.get('cuisine')
+    const location = searchParams.get('location')
+    const userLat = searchParams.get('lat')
+    const userLng = searchParams.get('lng')
+    const radius = searchParams.get('radius')
+    const sortBy = searchParams.get('sortBy') || 'created'
 
-    let restaurants
-
+    // Build where clause
+    const where: any = {}
+    
     if (ownerId) {
-      // Get restaurants for a specific owner
-      restaurants = await prisma.restaurant.findMany({
-        where: {
-          ownerId: parseInt(ownerId),
-        },
-        include: {
-          owner: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
-          offers: {
-            where: {
-              isActive: true,
-              expiresAt: {
-                gt: new Date(),
-              },
-            },
-          },
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-      })
-    } else {
-      // Get all restaurants
-      restaurants = await prisma.restaurant.findMany({
-        include: {
-          owner: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
-          offers: {
-            where: {
-              isActive: true,
-              expiresAt: {
-                gt: new Date(),
-              },
-            },
-          },
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-      })
+      where.ownerId = parseInt(ownerId)
     }
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { cuisine: { contains: search, mode: 'insensitive' } },
+        { location: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ]
+    }
+
+    if (cuisine && cuisine !== 'all') {
+      where.cuisine = { equals: cuisine, mode: 'insensitive' }
+    }
+
+    if (location && location !== 'all') {
+      where.location = { contains: location, mode: 'insensitive' }
+    }
+
+    // Build order by clause
+    let orderBy: any = { createdAt: 'desc' }
+    
+    switch (sortBy) {
+      case 'rating':
+        orderBy = { rating: 'desc' }
+        break
+      case 'name':
+        orderBy = { name: 'asc' }
+        break
+      case 'created':
+        orderBy = { createdAt: 'desc' }
+        break
+      default:
+        orderBy = { createdAt: 'desc' }
+    }
+
+    // Fetch restaurants
+    let restaurants = await prisma.restaurant.findMany({
+      where,
+      include: {
+        owner: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        offers: {
+          where: {
+            isActive: true,
+            expiresAt: {
+              gt: new Date(),
+            },
+          },
+        },
+      },
+      orderBy,
+    })
+
+    // Apply location-based filtering if coordinates are provided
+    if (userLat && userLng && radius) {
+      const userCoords: Coordinates = {
+        latitude: parseFloat(userLat),
+        longitude: parseFloat(userLng),
+      }
+      const radiusKm = parseFloat(radius)
+
+      restaurants = restaurants
+        .map(restaurant => {
+          if (restaurant.latitude && restaurant.longitude) {
+            const distance = calculateDistance(userCoords, {
+              latitude: restaurant.latitude,
+              longitude: restaurant.longitude,
+            })
+            return { ...restaurant, distance }
+          }
+          return { ...restaurant, distance: null }
+        })
+        .filter(restaurant => {
+          if (restaurant.distance === null) return true // Include restaurants without coordinates
+          return restaurant.distance <= radiusKm
+        })
+
+      // Sort by distance if location sorting is requested
+      if (sortBy === 'distance') {
+        restaurants.sort((a, b) => {
+          if (a.distance === null && b.distance === null) return 0
+          if (a.distance === null) return 1
+          if (b.distance === null) return -1
+          return a.distance - b.distance
+        })
+      }
+    }
+
+    // Get unique cuisines and locations for frontend filters
+    const cuisines = await prisma.restaurant.findMany({
+      select: { cuisine: true },
+      distinct: ['cuisine'],
+      orderBy: { cuisine: 'asc' },
+    })
+
+    const locations = await prisma.restaurant.findMany({
+      select: { location: true },
+      distinct: ['location'],
+      orderBy: { location: 'asc' },
+    })
 
     return NextResponse.json({
       restaurants,
+      filters: {
+        cuisines: cuisines.map(c => c.cuisine),
+        locations: locations.map(l => l.location),
+      },
+      count: restaurants.length,
     })
   } catch (error) {
     console.error('Error fetching restaurants:', error)

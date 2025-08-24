@@ -9,8 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { ArrowLeft, Building2, MapPin, Phone, Clock, FileText, Image as ImageIcon } from "lucide-react"
+import { LocationSearch } from "@/components/location-search"
+import { ArrowLeft, Building2, MapPin, Phone, Clock, FileText, Image as ImageIcon, Navigation } from "lucide-react"
 import Link from "next/link"
+import { type LocationData } from "@/lib/geolocation"
 
 export default function AddRestaurantPage() {
   const { isAuthorized, isLoading } = useAuthGuard()
@@ -24,10 +26,13 @@ export default function AddRestaurantPage() {
     cuisine: "",
     description: "",
     location: "",
+    latitude: undefined as number | undefined,
+    longitude: undefined as number | undefined,
     phone: "",
     hours: "",
     image: "",
   })
+  const [userLocation, setUserLocation] = useState<LocationData | null>(null)
 
   // Show loading while checking auth
   if (isLoading) {
@@ -52,6 +57,23 @@ export default function AddRestaurantPage() {
       ...prev,
       [name]: value
     }))
+  }
+
+  const handleLocationChange = (location: LocationData | null) => {
+    setUserLocation(location)
+    if (location && !location.error) {
+      setFormData(prev => ({
+        ...prev,
+        latitude: location.coordinates.latitude,
+        longitude: location.coordinates.longitude
+      }))
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        latitude: undefined,
+        longitude: undefined
+      }))
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -175,6 +197,21 @@ export default function AddRestaurantPage() {
                       onChange={handleInputChange}
                       placeholder="e.g., 123 Main St, Downtown"
                       required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <Navigation className="w-4 h-4" />
+                      Precise Location (Optional)
+                    </Label>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Add your restaurant's exact coordinates to help customers find you and improve search results.
+                    </p>
+                    <LocationSearch
+                      onLocationChange={handleLocationChange}
+                      currentLocation={userLocation}
+                      className="border rounded-lg p-4 bg-muted/30"
                     />
                   </div>
 

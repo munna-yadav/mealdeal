@@ -1,50 +1,106 @@
 "use client"
 
-import { useState } from "react"
-import { useRestaurants } from "@/hooks/useRestaurants"
+import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, Filter, Star, MapPin, Clock, Building2 } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { AdvancedSearch } from "@/components/advanced-search"
+import { Star, MapPin, Building2 } from "lucide-react"
+import { restaurantAPI } from "@/lib/api"
+import { formatDistance, type LocationData } from "@/lib/geolocation"
+
+interface Restaurant {
+  id: number
+  name: string
+  cuisine: string
+  description?: string
+  location: string
+  latitude?: number
+  longitude?: number
+  phone?: string
+  hours?: string
+  rating: number
+  reviewCount: number
+  image?: string
+  ownerId: number
+  owner: {
+    id: number
+    name: string
+    email: string
+  }
+  offers: Array<{
+    id: number
+    title: string
+    isActive: boolean
+    expiresAt: string
+  }>
+  distance?: number
+  createdAt: string
+  updatedAt: string
+}
+
+interface SearchFilters {
+  search: string
+  cuisine: string
+  location: string
+  discount: string
+  sortBy: string
+  userLocation?: LocationData | null
+  radius?: number
+}
 
 export default function RestaurantsPage() {
-  const { data: restaurants = [], isLoading, error } = useRestaurants()
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCuisine, setSelectedCuisine] = useState("all")
-  const [sortBy, setSortBy] = useState("rating")
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [availableFilters, setAvailableFilters] = useState({ cuisines: [], locations: [] })
 
-  // Get unique cuisines for filter
-  const cuisines = [...new Set(restaurants.map(r => r.cuisine))].sort()
-
-  // Filter and sort restaurants
-  const filteredRestaurants = restaurants
-    .filter(restaurant => {
-      const matchesSearch = restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           restaurant.cuisine.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           restaurant.location.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesCuisine = selectedCuisine === "all" || restaurant.cuisine === selectedCuisine
-      return matchesSearch && matchesCuisine
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "rating":
-          return b.rating - a.rating
-        case "name":
-          return a.name.localeCompare(b.name)
-        case "newest":
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        case "offers":
-          const aActiveOffers = a.offers.filter(o => o.isActive && new Date(o.expiresAt) > new Date()).length
-          const bActiveOffers = b.offers.filter(o => o.isActive && new Date(o.expiresAt) > new Date()).length
-          return bActiveOffers - aActiveOffers
-        default:
-          return 0
+  const fetchRestaurants = async (filters: SearchFilters) => {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      const params: any = {}
+      
+      if (filters.search) params.search = filters.search
+      if (filters.cuisine !== 'all') params.cuisine = filters.cuisine
+      if (filters.location !== 'all') params.location = filters.location
+      if (filters.sortBy) params.sortBy = filters.sortBy
+      
+      // Add location parameters if available
+      if (filters.userLocation && !filters.userLocation.error) {
+        params.lat = filters.userLocation.coordinates.latitude
+        params.lng = filters.userLocation.coordinates.longitude
+        params.radius = filters.radius || 10
       }
+
+      const response = await restaurantAPI.getAll(params)
+      setRestaurants(response.data.restaurants || [])
+      setAvailableFilters(response.data.filters || { cuisines: [], locations: [] })
+    } catch (err: any) {
+      setError('Failed to fetch restaurants')
+      console.error('Error fetching restaurants:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Initial load
+  useEffect(() => {
+    fetchRestaurants({
+      search: '',
+      cuisine: 'all',
+      location: 'all', 
+      discount: 'all',
+      sortBy: 'rating'
     })
+  }, [])
+
+  const handleSearchChange = useCallback((filters: SearchFilters) => {
+    fetchRestaurants(filters)
+  }, []) // Empty dependency array since fetchRestaurants doesn't depend on external state
 
   if (error) {
     return (
@@ -71,54 +127,21 @@ export default function RestaurantsPage() {
           </p>
         </div>
 
-        {/* Filters */}
+        {/* Advanced Search */}
         <div className="mb-8">
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search restaurants, cuisine, or location..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            {/* Cuisine Filter */}
-            <Select value={selectedCuisine} onValueChange={setSelectedCuisine}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="All Cuisines" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Cuisines</SelectItem>
-                {cuisines.map((cuisine) => (
-                  <SelectItem key={cuisine} value={cuisine}>
-                    {cuisine}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Sort */}
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="rating">Highest Rated</SelectItem>
-                <SelectItem value="name">Name A-Z</SelectItem>
-                <SelectItem value="newest">Newest</SelectItem>
-                <SelectItem value="offers">Most Offers</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <AdvancedSearch
+            onSearchChange={handleSearchChange}
+            availableFilters={availableFilters}
+            searchType="restaurants"
+            placeholder="Search restaurants, cuisine, or location..."
+            showLocationSearch={true}
+          />
         </div>
 
         {/* Results Count */}
         <div className="mb-6">
           <p className="text-muted-foreground">
-            {isLoading ? "Loading..." : `${filteredRestaurants.length} restaurant${filteredRestaurants.length !== 1 ? 's' : ''} found`}
+            {isLoading ? "Loading..." : `${restaurants.length} restaurant${restaurants.length !== 1 ? 's' : ''} found`}
           </p>
         </div>
 
@@ -136,9 +159,9 @@ export default function RestaurantsPage() {
               </Card>
             ))}
           </div>
-        ) : filteredRestaurants.length > 0 ? (
+        ) : restaurants.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredRestaurants.map((restaurant) => {
+            {restaurants.map((restaurant) => {
               const activeOffers = restaurant.offers.filter(
                 offer => offer.isActive && new Date(offer.expiresAt) > new Date()
               )
@@ -178,7 +201,14 @@ export default function RestaurantsPage() {
                       <p className="text-sm text-muted-foreground mb-2">{restaurant.cuisine}</p>
                       <div className="flex items-center text-sm text-muted-foreground mb-3">
                         <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
-                        <span className="line-clamp-1">{restaurant.location}</span>
+                        <span className="line-clamp-1">
+                          {restaurant.location}
+                          {restaurant.distance && (
+                            <span className="ml-2 text-xs text-blue-600 font-medium">
+                              • {formatDistance(restaurant.distance)}
+                            </span>
+                          )}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span>{restaurant.reviewCount} reviews</span>
@@ -195,21 +225,18 @@ export default function RestaurantsPage() {
             <Building2 className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
             <h3 className="text-xl font-semibold mb-2">No restaurants found</h3>
             <p className="text-muted-foreground mb-4">
-              {searchTerm || selectedCuisine !== "all" 
-                ? "Try adjusting your search criteria or filters"
-                : "Be the first to add a restaurant to the platform"}
+              Try adjusting your search criteria or filters, or be the first to add a restaurant to the platform
             </p>
-            {(!searchTerm && selectedCuisine === "all") && (
-              <Button asChild>
-                <Link href="/restaurant/add">
-                  <Building2 className="w-4 h-4 mr-2" />
-                  Add Restaurant
-                </Link>
-              </Button>
-            )}
+            <Button asChild>
+              <Link href="/restaurant/add">
+                <Building2 className="w-4 h-4 mr-2" />
+                Add Restaurant
+              </Link>
+            </Button>
           </div>
         )}
       </div>
     </div>
   )
 }
+
