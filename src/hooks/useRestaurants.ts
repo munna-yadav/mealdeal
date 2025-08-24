@@ -100,3 +100,27 @@ export function useCreateRestaurant() {
   })
 }
 
+// Hook to update a restaurant
+export function useUpdateRestaurant() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: restaurantAPI.update,
+    onSuccess: (response, variables) => {
+      // Invalidate and refetch restaurant queries
+      queryClient.invalidateQueries({ queryKey: RESTAURANT_QUERY_KEYS.all })
+      
+      // If we know the owner ID, invalidate their specific query too
+      const restaurant = response.data.restaurant as Restaurant
+      if (restaurant?.ownerId) {
+        queryClient.invalidateQueries({ 
+          queryKey: RESTAURANT_QUERY_KEYS.byOwner(restaurant.ownerId) 
+        })
+      }
+    },
+    onError: (error: AxiosError) => {
+      console.error('Update restaurant error:', error.response?.data)
+    },
+  })
+}
+

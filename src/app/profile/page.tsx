@@ -294,9 +294,11 @@ export default function ProfilePage() {
                             {restaurant.reviewCount} reviews
                           </span>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline">
-                              <Edit className="w-3 h-3 mr-1" />
-                              Edit
+                            <Button size="sm" variant="outline" asChild>
+                              <a href={`/restaurant/edit/${restaurant.id}`}>
+                                <Edit className="w-3 h-3 mr-1" />
+                                Edit
+                              </a>
                             </Button>
                             <Button size="sm" variant="outline" asChild>
                               <a href={`/restaurant/${restaurant.id}`}>

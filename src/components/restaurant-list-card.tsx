@@ -79,9 +79,11 @@ export function RestaurantListCard({ restaurant, showOwnerActions = false }: Res
           
           {showOwnerActions ? (
             <div className="flex gap-2">
-              <Button size="sm" variant="outline">
-                <Edit className="w-3 h-3 mr-1" />
-                Edit
+              <Button size="sm" variant="outline" asChild>
+                <Link href={`/restaurant/edit/${restaurant.id}`}>
+                  <Edit className="w-3 h-3 mr-1" />
+                  Edit
+                </Link>
               </Button>
               <Button size="sm" variant="outline" asChild>
                 <Link href={`/restaurant/${restaurant.id}`}>

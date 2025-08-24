@@ -217,3 +217,92 @@ export async function GET(req: NextRequest) {
     )
   }
 }
+
+export async function PUT(req: NextRequest) {
+  try {
+    // Get token from cookies
+    const token = req.cookies.get('access_token')?.value
+
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+
+    // Verify the token and get user
+    const decoded: JWTPayload = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { error: 'Invalid or expired token' },
+        { status: 401 }
+      )
+    }
+
+    // Get request body
+    const body = await req.json()
+    const { id, name, cuisine, description, location, latitude, longitude, phone, hours, image } = body
+
+    // Validate required fields
+    if (!id || !name || !cuisine || !location) {
+      return NextResponse.json(
+        { error: 'ID, name, cuisine, and location are required' },
+        { status: 400 }
+      )
+    }
+
+    // Check if restaurant exists and belongs to the user
+    const existingRestaurant = await prisma.restaurant.findFirst({
+      where: {
+        id: parseInt(id),
+        ownerId: decoded.userId,
+      }
+    })
+
+    if (!existingRestaurant) {
+      return NextResponse.json(
+        { error: 'Restaurant not found or you do not have permission to edit it' },
+        { status: 404 }
+      )
+    }
+
+    // Update restaurant
+    const restaurant = await prisma.restaurant.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: {
+        name,
+        cuisine,
+        description,
+        location,
+        latitude: latitude ? parseFloat(latitude) : null,
+        longitude: longitude ? parseFloat(longitude) : null,
+        phone,
+        hours,
+        image,
+      },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          }
+        },
+        offers: true,
+      }
+    })
+
+    return NextResponse.json({
+      message: 'Restaurant updated successfully',
+      restaurant
+    })
+  } catch (error) {
+    console.error('Error updating restaurant:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}

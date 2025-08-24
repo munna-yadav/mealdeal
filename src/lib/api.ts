@@ -70,6 +70,20 @@ export const restaurantAPI = {
     hours?: string
     image?: string
   }) => api.post('/restaurants', data),
+
+  // Update restaurant
+  update: (data: {
+    id: number
+    name: string
+    cuisine: string
+    description?: string
+    location: string
+    latitude?: number
+    longitude?: number
+    phone?: string
+    hours?: string
+    image?: string
+  }) => api.put('/restaurants', data),
   
   // Get restaurants with search and location filtering
   getAll: (params?: {
@@ -96,6 +110,9 @@ export const restaurantAPI = {
   
   // Get restaurants by owner
   getByOwner: (ownerId: number) => api.get(`/restaurants?ownerId=${ownerId}`),
+
+  // Get restaurant by ID
+  getById: (id: number) => api.get(`/restaurants/${id}`),
 }
 
 // Offer API functions
