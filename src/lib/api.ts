@@ -144,6 +144,46 @@ export const offerAPI = {
     api.get(`/offers?restaurantId=${restaurantId}&activeOnly=${activeOnly}`),
 }
 
+// Deals API functions
+export const dealsAPI = {
+  // Claim a deal
+  claim: (offerId: number) => api.post('/deals/claim', { offerId }),
+  
+  // Get user's claimed deals
+  getClaimed: () => api.get('/deals/claim'),
+}
+
+// Reservations API functions
+export const reservationsAPI = {
+  // Create a reservation
+  create: (data: {
+    restaurantId: number
+    date: string
+    time: string
+    partySize: number
+    specialRequests?: string
+    phoneNumber?: string
+    email?: string
+  }) => api.post('/reservations', data),
+  
+  // Get user's reservations
+  getAll: (params?: {
+    restaurantId?: number
+    status?: string
+  }) => {
+    const searchParams = new URLSearchParams()
+    if (params?.restaurantId) searchParams.append('restaurantId', params.restaurantId.toString())
+    if (params?.status) searchParams.append('status', params.status)
+    
+    const queryString = searchParams.toString()
+    return api.get(`/reservations${queryString ? `?${queryString}` : ''}`)
+  },
+  
+  // Update reservation status
+  updateStatus: (reservationId: number, status: string) => 
+    api.patch('/reservations', { reservationId, status }),
+}
+
 // User types
 export interface User {
   id: number
