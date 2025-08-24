@@ -7,8 +7,11 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Star, MapPin, Clock, Phone, Heart, Share, Calendar } from "lucide-react"
-import { restaurantAPI } from "@/lib/api"
+import { Star, MapPin, Clock, Phone, Heart, Share, Calendar, Gift } from "lucide-react"
+import { restaurantAPI, reservationsAPI, dealsAPI } from "@/lib/api"
+import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/hooks/useAuth"
+import { ReservationModal } from "@/components/reservation-modal"
 import type { Restaurant } from "@/hooks/useRestaurants"
 
 // Default placeholder data for loading/error states
@@ -28,6 +31,11 @@ export default function RestaurantPage({ params }: RestaurantPageProps) {
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showReservationModal, setShowReservationModal] = useState(false)
+  const [claimingDeals, setClaimingDeals] = useState<Set<number>>(new Set())
+  const [claimedDeals, setClaimedDeals] = useState<Set<number>>(new Set())
+  const { toast } = useToast()
+  const { isAuthenticated, user } = useAuth()
 
   useEffect(() => {
     async function fetchRestaurant() {
@@ -53,6 +61,86 @@ export default function RestaurantPage({ params }: RestaurantPageProps) {
 
     fetchRestaurant()
   }, [params])
+
+  // Handler functions for the action buttons
+  const handleCallRestaurant = () => {
+    if (restaurant?.phone) {
+      window.location.href = `tel:${restaurant.phone}`
+    } else {
+      toast({
+        title: "Phone number not available",
+        description: "This restaurant hasn't provided a phone number",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handleGetDirections = () => {
+    if (restaurant?.latitude && restaurant?.longitude) {
+      // Use Google Maps with coordinates
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${restaurant.latitude},${restaurant.longitude}`
+      window.open(url, '_blank')
+    } else if (restaurant?.location) {
+      // Fallback to address search
+      const encodedAddress = encodeURIComponent(restaurant.location)
+      const url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`
+      window.open(url, '_blank')
+    } else {
+      toast({
+        title: "Location not available",
+        description: "This restaurant's location information is not available",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handleMakeReservation = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to make a reservation",
+        variant: "destructive"
+      })
+      return
+    }
+    setShowReservationModal(true)
+  }
+
+  const handleClaimDeal = async (offerId: number) => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to claim deals",
+        variant: "destructive"
+      })
+      return
+    }
+
+    if (claimedDeals.has(offerId)) return
+
+    setClaimingDeals(prev => new Set(prev).add(offerId))
+    try {
+      const response = await dealsAPI.claim(offerId)
+      
+      setClaimedDeals(prev => new Set(prev).add(offerId))
+      toast({
+        title: "Deal claimed successfully! 🎉",
+        description: `Redemption code: ${response.data.claimedDeal.redemptionCode}`,
+      })
+    } catch (error: any) {
+      toast({
+        title: "Failed to claim deal",
+        description: error.response?.data?.error || "Please try again later",
+        variant: "destructive"
+      })
+    } finally {
+      setClaimingDeals(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(offerId)
+        return newSet
+      })
+    }
+  }
 
   if (loading) {
     return (
@@ -205,8 +293,24 @@ export default function RestaurantPage({ params }: RestaurantPageProps) {
                           <p className="text-xs text-muted-foreground mt-2">{deal.terms}</p>
                           )}
                         </div>
-                        <Button className="md:w-auto w-full">
-                          Claim Deal
+                        <Button 
+                          className={`md:w-auto w-full ${claimedDeals.has(deal.id) ? "bg-green-600 hover:bg-green-700" : ""}`}
+                          onClick={() => handleClaimDeal(deal.id)}
+                          disabled={claimingDeals.has(deal.id) || claimedDeals.has(deal.id)}
+                        >
+                          {claimedDeals.has(deal.id) ? (
+                            <>
+                              <Gift className="w-4 h-4 mr-1" />
+                              Claimed!
+                            </>
+                          ) : claimingDeals.has(deal.id) ? (
+                            "Claiming..."
+                          ) : (
+                            <>
+                              <Gift className="w-4 h-4 mr-1" />
+                              Claim Deal
+                            </>
+                          )}
                         </Button>
                       </div>
                     </CardContent>
@@ -272,15 +376,26 @@ export default function RestaurantPage({ params }: RestaurantPageProps) {
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button className="w-full">
+                <Button 
+                  className="w-full"
+                  onClick={handleCallRestaurant}
+                >
                   <Phone className="h-4 w-4 mr-2" />
                   Call Restaurant
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={handleGetDirections}
+                >
                   <MapPin className="h-4 w-4 mr-2" />
                   Get Directions
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={handleMakeReservation}
+                >
                   <Calendar className="h-4 w-4 mr-2" />
                   Make Reservation
                 </Button>
@@ -334,6 +449,14 @@ export default function RestaurantPage({ params }: RestaurantPageProps) {
           </div>
         </div>
       </div>
+      
+      {/* Reservation Modal */}
+      <ReservationModal
+        isOpen={showReservationModal}
+        onClose={() => setShowReservationModal(false)}
+        restaurantId={restaurant.id}
+        restaurantName={restaurant.name}
+      />
     </div>
   )
 }
