@@ -3,19 +3,7 @@ import Link from "next/link"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Star, MapPin, Clock } from "lucide-react"
-
-interface RestaurantCardProps {
-  id: string
-  name: string
-  cuisine: string
-  rating: number
-  reviewCount: number
-  location: string
-  deliveryTime: string
-  image: string
-  dealCount: number
-  minDiscount: number
-}
+import type { RestaurantCardProps } from "@/types"
 
 export function RestaurantCard({
   id,

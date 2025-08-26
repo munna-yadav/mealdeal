@@ -1,11 +1,7 @@
 import jwt from 'jsonwebtoken';
+import type { JWTPayload } from '@/types';
 
-export interface JWTPayload {
-  userId: number;
-  email: string;
-  iat?: number;
-  exp?: number;
-}
+export type { JWTPayload };
 
 export function signAccessToken(payload: object) {
   return jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '15m' });

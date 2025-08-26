@@ -20,7 +20,7 @@ export function useOffers(activeOnly = true) {
   return useQuery({
     queryKey: OFFER_QUERY_KEYS.all(activeOnly),
     queryFn: async () => {
-      const response = await offerAPI.getAll(activeOnly)
+      const response = await offerAPI.getAll({ activeOnly })
       return response.data.offers as OfferWithRestaurant[]
     },
     staleTime: 5 * 60 * 1000, // 5 minutes

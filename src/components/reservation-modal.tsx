@@ -17,13 +17,7 @@ import {
 import { Calendar, Clock, Users } from "lucide-react"
 import { reservationsAPI } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
-
-interface ReservationModalProps {
-  isOpen: boolean
-  onClose: () => void
-  restaurantId: number
-  restaurantName: string
-}
+import type { ReservationModalProps } from "@/types"
 
 export function ReservationModal({ isOpen, onClose, restaurantId, restaurantName }: ReservationModalProps) {
   const [formData, setFormData] = useState({
@@ -217,3 +211,4 @@ export function ReservationModal({ isOpen, onClose, restaurantId, restaurantName
     </Dialog>
   )
 }
+

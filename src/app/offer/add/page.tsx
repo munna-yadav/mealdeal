@@ -12,13 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator"
 import { ArrowLeft, Tag, DollarSign, Calendar, FileText, Building2 } from "lucide-react"
 import Link from "next/link"
-
-interface Restaurant {
-  id: number
-  name: string
-  cuisine: string
-  location: string
-}
+import type { RestaurantSimple as Restaurant } from "@/types"
 
 export default function AddOfferPage() {
   const { isAuthorized, isLoading, user } = useAuthGuard()

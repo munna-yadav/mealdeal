@@ -422,3 +422,5 @@ export default function EditRestaurantPage({ params }: EditRestaurantPageProps) 
     </div>
   )
 }
+
+

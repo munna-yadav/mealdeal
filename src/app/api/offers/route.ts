@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
-import { verifyToken, type JWTPayload } from '@/lib/auth'
-import { calculateDistance, type Coordinates } from '@/lib/geolocation'
+import { verifyToken } from '@/lib/auth'
+import { calculateDistance } from '@/lib/geolocation'
+import type { JWTPayload, Coordinates } from '@/types'
 
 const prisma = new PrismaClient()
 
@@ -212,7 +213,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Fetch offers
-    let offers = await prisma.offer.findMany({
+    let offers: any[] = await prisma.offer.findMany({
       where: whereClause,
       include: {
         restaurant: {

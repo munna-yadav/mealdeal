@@ -9,47 +9,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { AdvancedSearch } from "@/components/advanced-search"
 import { Star, MapPin, Building2 } from "lucide-react"
 import { restaurantAPI } from "@/lib/api"
-import { formatDistance, type LocationData } from "@/lib/geolocation"
-
-interface Restaurant {
-  id: number
-  name: string
-  cuisine: string
-  description?: string
-  location: string
-  latitude?: number
-  longitude?: number
-  phone?: string
-  hours?: string
-  rating: number
-  reviewCount: number
-  image?: string
-  ownerId: number
-  owner: {
-    id: number
-    name: string
-    email: string
-  }
-  offers: Array<{
-    id: number
-    title: string
-    isActive: boolean
-    expiresAt: string
-  }>
-  distance?: number
-  createdAt: string
-  updatedAt: string
-}
-
-interface SearchFilters {
-  search: string
-  cuisine: string
-  location: string
-  discount: string
-  sortBy: string
-  userLocation?: LocationData | null
-  radius?: number
-}
+import { formatDistance } from "@/lib/geolocation"
+import type { Restaurant, SearchFilters, LocationData } from "@/types"
 
 export default function RestaurantsPage() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([])

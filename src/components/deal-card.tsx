@@ -8,23 +8,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Star, Clock, MapPin, Heart, Gift } from "lucide-react"
 import { dealsAPI } from "@/lib/api"
 import { useAuth } from "@/hooks/useAuth"
-
-interface DealCardProps {
-  id: string
-  title: string
-  restaurant: {
-    name: string
-    rating: number
-    location: string
-  }
-  discount: number
-  originalPrice: number
-  discountedPrice: number
-  image: string
-  expiresIn: string
-  cuisine: string
-  isFavorite?: boolean
-}
+import type { DealCardProps } from "@/types"
 
 export function DealCard({ 
   id, 

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { authAPI, type User } from '@/lib/api'
+import { authAPI } from '@/lib/api'
 import { AxiosError } from 'axios'
+import type { User, AuthCredentials } from '@/types'
 
 // Query keys
 export const AUTH_QUERY_KEYS = {
@@ -97,7 +98,7 @@ export function useAuth() {
   const signinMutation = useSignin()
   const logoutMutation = useLogout()
   
-  const signin = async (credentials: { email: string; password: string }) => {
+  const signin = async (credentials: AuthCredentials) => {
     const result = await signinMutation.mutateAsync(credentials)
     // Refetch user data after signin
     await refetch()
@@ -127,6 +128,8 @@ export function useAuth() {
     logoutError: logoutMutation.error,
   }
 }
+
+
 
 
 

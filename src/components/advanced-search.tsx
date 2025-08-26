@@ -9,33 +9,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { LocationSearch } from "@/components/location-search"
 import { Search, Filter, ChevronDown, ChevronUp, X } from "lucide-react"
-import { type LocationData } from "@/lib/geolocation"
-
-interface SearchFilters {
-  search: string
-  cuisine: string
-  location: string
-  discount: string
-  sortBy: string
-}
-
-interface LocationFilters {
-  userLocation?: LocationData | null
-  radius?: number
-}
-
-interface AdvancedSearchProps {
-  onSearchChange: (filters: SearchFilters & LocationFilters) => void
-  availableFilters?: {
-    cuisines?: string[]
-    locations?: string[]
-  }
-  searchType?: 'restaurants' | 'deals'
-  placeholder?: string
-  initialFilters?: Partial<SearchFilters>
-  showLocationSearch?: boolean
-  className?: string
-}
+import type { 
+  SearchFilters, 
+  LocationFilters, 
+  AdvancedSearchProps, 
+  LocationData 
+} from "@/types"
 
 export function AdvancedSearch({
   onSearchChange,

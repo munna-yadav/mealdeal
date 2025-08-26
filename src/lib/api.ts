@@ -1,4 +1,16 @@
 import axios from 'axios'
+import type { 
+  User, 
+  AuthCredentials, 
+  SignupData, 
+  RestaurantCreateData, 
+  RestaurantUpdateData,
+  OfferCreateData,
+  RestaurantAPIParams,
+  OfferAPIParams,
+  ReservationCreateData,
+  ReservationAPIParams
+} from '@/types'
 
 // Create axios instance with default config
 export const api = axios.create({
@@ -42,11 +54,11 @@ export const authAPI = {
   me: () => api.get('/auth/me'),
   
   // Sign in
-  signin: (credentials: { email: string; password: string }) =>
+  signin: (credentials: AuthCredentials) =>
     api.post('/auth/singin', credentials),
   
   // Sign up
-  signup: (userData: { name: string; email: string; password: string }) =>
+  signup: (userData: SignupData) =>
     api.post('/auth/signup', userData),
   
   // Logout
@@ -59,42 +71,13 @@ export const authAPI = {
 // Restaurant API functions
 export const restaurantAPI = {
   // Create restaurant
-  create: (data: {
-    name: string
-    cuisine: string
-    description?: string
-    location: string
-    latitude?: number
-    longitude?: number
-    phone?: string
-    hours?: string
-    image?: string
-  }) => api.post('/restaurants', data),
+  create: (data: RestaurantCreateData) => api.post('/restaurants', data),
 
   // Update restaurant
-  update: (data: {
-    id: number
-    name: string
-    cuisine: string
-    description?: string
-    location: string
-    latitude?: number
-    longitude?: number
-    phone?: string
-    hours?: string
-    image?: string
-  }) => api.put('/restaurants', data),
+  update: (data: RestaurantUpdateData) => api.put('/restaurants', data),
   
   // Get restaurants with search and location filtering
-  getAll: (params?: {
-    search?: string
-    cuisine?: string
-    location?: string
-    lat?: number
-    lng?: number
-    radius?: number
-    sortBy?: string
-  }) => {
+  getAll: (params?: RestaurantAPIParams) => {
     const searchParams = new URLSearchParams()
     if (params?.search) searchParams.append('search', params.search)
     if (params?.cuisine) searchParams.append('cuisine', params.cuisine)
@@ -118,29 +101,10 @@ export const restaurantAPI = {
 // Offer API functions
 export const offerAPI = {
   // Create offer
-  create: (data: {
-    title: string
-    description?: string
-    originalPrice: string
-    discountedPrice: string
-    discount: string
-    terms?: string
-    expiresAt: string
-    restaurantId: string
-  }) => api.post('/offers', data),
+  create: (data: OfferCreateData) => api.post('/offers', data),
   
   // Get offers with search and location filtering
-  getAll: (params?: {
-    activeOnly?: boolean
-    search?: string
-    cuisine?: string
-    location?: string
-    discount?: string
-    lat?: number
-    lng?: number
-    radius?: number
-    sortBy?: string
-  }) => {
+  getAll: (params?: OfferAPIParams) => {
     const searchParams = new URLSearchParams()
     if (params?.activeOnly) searchParams.append('activeOnly', 'true')
     if (params?.search) searchParams.append('search', params.search)
@@ -173,21 +137,10 @@ export const dealsAPI = {
 // Reservations API functions
 export const reservationsAPI = {
   // Create a reservation
-  create: (data: {
-    restaurantId: number
-    date: string
-    time: string
-    partySize: number
-    specialRequests?: string
-    phoneNumber?: string
-    email?: string
-  }) => api.post('/reservations', data),
+  create: (data: ReservationCreateData) => api.post('/reservations', data),
   
   // Get user's reservations
-  getAll: (params?: {
-    restaurantId?: number
-    status?: string
-  }) => {
+  getAll: (params?: ReservationAPIParams) => {
     const searchParams = new URLSearchParams()
     if (params?.restaurantId) searchParams.append('restaurantId', params.restaurantId.toString())
     if (params?.status) searchParams.append('status', params.status)
@@ -201,14 +154,7 @@ export const reservationsAPI = {
     api.patch('/reservations', { reservationId, status }),
 }
 
-// User types
-export interface User {
-  id: number
-  name: string
-  email: string
-  isVerified: boolean
-  createdAt: string
-}
+
 
 
 

@@ -12,16 +12,9 @@ import {
   checkLocationPermission, 
   getUserLocationWithCache,
   clearLocationCache,
-  formatDistance,
-  type LocationData 
+  formatDistance
 } from "@/lib/geolocation"
-
-interface LocationSearchProps {
-  onLocationChange: (location: LocationData | null, radius?: number) => void
-  currentLocation?: LocationData | null
-  radius?: number
-  className?: string
-}
+import type { LocationData, LocationSearchProps } from "@/types"
 
 export function LocationSearch({ 
   onLocationChange, 
@@ -235,3 +228,4 @@ export function LocationSearch({
     </div>
   )
 }
+

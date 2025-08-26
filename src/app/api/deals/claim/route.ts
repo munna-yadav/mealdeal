@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
-import { verifyToken, type JWTPayload } from '@/lib/auth'
+import { verifyToken } from '@/lib/auth'
+import type { JWTPayload } from '@/types'
 
 const prisma = new PrismaClient()
 
@@ -215,3 +216,4 @@ export async function GET(req: NextRequest) {
     )
   }
 }
+

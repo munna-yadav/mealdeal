@@ -2,22 +2,9 @@
  * Geolocation utilities for location-based search and distance calculations
  */
 
-export interface Coordinates {
-  latitude: number
-  longitude: number
-}
+import type { Coordinates, LocationData, GeolocationError } from '@/types'
 
-export interface LocationData {
-  coordinates: Coordinates
-  address?: string
-  city?: string
-  error?: string
-}
-
-export interface GeolocationError {
-  code: number
-  message: string
-}
+export type { Coordinates, LocationData, GeolocationError };
 
 /**
  * Calculate the distance between two coordinates using the Haversine formula
@@ -236,3 +223,4 @@ export function clearLocationCache(): void {
   localStorage.removeItem('user_location')
   localStorage.removeItem('user_location_timestamp')
 }
+
