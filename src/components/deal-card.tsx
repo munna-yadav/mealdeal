@@ -49,10 +49,10 @@ export function DealCard({
         title: "Deal claimed successfully! 🎉",
         description: `Redemption code: ${response.data.claimedDeal.redemptionCode}`,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Failed to claim deal",
-        description: error.response?.data?.error || "Please try again later",
+        description: (error as { response?: { data?: { error?: string } } })?.response?.data?.error || "Please try again later",
         variant: "destructive"
       })
     } finally {

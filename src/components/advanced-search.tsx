@@ -240,7 +240,7 @@ export function AdvancedSearch({
           
           {filters.search && (
             <Badge variant="secondary" className="cursor-pointer" onClick={() => handleFilterChange('search', '')}>
-              Search: "{filters.search}" <X className="h-3 w-3 ml-1" />
+              Search: &quot;{filters.search}&quot; <X className="h-3 w-3 ml-1" />
             </Badge>
           )}
           

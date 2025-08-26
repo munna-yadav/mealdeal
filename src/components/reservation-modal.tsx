@@ -91,10 +91,10 @@ export function ReservationModal({ isOpen, onClose, restaurantId, restaurantName
         email: ''
       })
       onClose()
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Failed to make reservation",
-        description: error.response?.data?.error || "Please try again later",
+        description: (error as { response?: { data?: { error?: string } } })?.response?.data?.error || "Please try again later",
         variant: "destructive"
       })
     } finally {
