@@ -141,7 +141,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Fetch restaurants with pagination
-    const restaurants = await prisma.restaurant.findMany({
+    let restaurants = await prisma.restaurant.findMany({
       where,
       include: {
         owner: {

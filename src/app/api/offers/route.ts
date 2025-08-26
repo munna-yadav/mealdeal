@@ -222,7 +222,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Fetch offers with pagination
-    const offers = await prisma.offer.findMany({
+    let offers = await prisma.offer.findMany({
       where: whereClause,
       include: {
         restaurant: {
