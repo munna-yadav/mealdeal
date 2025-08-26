@@ -240,10 +240,44 @@ export interface AdvancedSearchProps {
 }
 
 // =============================================================================
+// Pagination Types
+// =============================================================================
+
+export interface PaginationParams {
+  page?: number
+  limit?: number
+  cursor?: string
+}
+
+export interface PaginationMeta {
+  currentPage: number
+  totalPages: number
+  totalCount: number
+  hasNextPage: boolean
+  hasPreviousPage: boolean
+}
+
+export interface CursorPaginationMeta {
+  hasNextPage: boolean
+  nextCursor?: string
+  totalCount: number
+}
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  pagination: PaginationMeta
+}
+
+export interface CursorPaginatedResponse<T> {
+  data: T[]
+  pagination: CursorPaginationMeta
+}
+
+// =============================================================================
 // API Types
 // =============================================================================
 
-export interface RestaurantAPIParams {
+export interface RestaurantAPIParams extends PaginationParams {
   search?: string
   cuisine?: string
   location?: string
@@ -254,7 +288,7 @@ export interface RestaurantAPIParams {
   ownerId?: number
 }
 
-export interface OfferAPIParams {
+export interface OfferAPIParams extends PaginationParams {
   activeOnly?: boolean
   search?: string
   cuisine?: string
@@ -313,12 +347,14 @@ export interface RestaurantsResponse {
   restaurants: Restaurant[]
   filters: AvailableFilters
   count: number
+  pagination?: CursorPaginationMeta
 }
 
 export interface OffersResponse {
   offers: Offer[]
   filters: AvailableFilters
   count: number
+  pagination?: CursorPaginationMeta
 }
 
 export interface ClaimedDealsResponse {

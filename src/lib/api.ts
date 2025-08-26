@@ -86,6 +86,9 @@ export const restaurantAPI = {
     if (params?.lng) searchParams.append('lng', params.lng.toString())
     if (params?.radius) searchParams.append('radius', params.radius.toString())
     if (params?.sortBy) searchParams.append('sortBy', params.sortBy)
+    if (params?.page) searchParams.append('page', params.page.toString())
+    if (params?.limit) searchParams.append('limit', params.limit.toString())
+    if (params?.cursor) searchParams.append('cursor', params.cursor)
     
     const queryString = searchParams.toString()
     return api.get(`/restaurants${queryString ? `?${queryString}` : ''}`)
@@ -115,6 +118,9 @@ export const offerAPI = {
     if (params?.lng) searchParams.append('lng', params.lng.toString())
     if (params?.radius) searchParams.append('radius', params.radius.toString())
     if (params?.sortBy) searchParams.append('sortBy', params.sortBy)
+    if (params?.page) searchParams.append('page', params.page.toString())
+    if (params?.limit) searchParams.append('limit', params.limit.toString())
+    if (params?.cursor) searchParams.append('cursor', params.cursor)
     
     const queryString = searchParams.toString()
     return api.get(`/offers${queryString ? `?${queryString}` : ''}`)

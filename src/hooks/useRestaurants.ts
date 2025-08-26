@@ -1,52 +1,15 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query'
 import { restaurantAPI } from '@/lib/api'
 import { AxiosError } from 'axios'
+import type { RestaurantAPIParams, RestaurantsResponse, Restaurant } from '@/types'
 
 // Query keys
 export const RESTAURANT_QUERY_KEYS = {
   all: ['restaurants'] as const,
+  infinite: (params?: Omit<RestaurantAPIParams, 'cursor' | 'page'>) => 
+    ['restaurants', 'infinite', params] as const,
   byOwner: (ownerId: number) => ['restaurants', 'owner', ownerId] as const,
 } as const
-
-// Types
-export interface Restaurant {
-  id: number
-  name: string
-  cuisine: string
-  description?: string
-  location: string
-  latitude?: number
-  longitude?: number
-  phone?: string
-  hours?: string
-  rating: number
-  reviewCount: number
-  image?: string
-  ownerId: number
-  owner: {
-    id: number
-    name: string
-    email: string
-  }
-  offers: Offer[]
-  createdAt: string
-  updatedAt: string
-}
-
-export interface Offer {
-  id: number
-  title: string
-  description?: string
-  originalPrice: number
-  discountedPrice: number
-  discount: number
-  terms?: string
-  expiresAt: string
-  isActive: boolean
-  restaurantId: number
-  createdAt: string
-  updatedAt: string
-}
 
 // Hook to get all restaurants
 export function useRestaurants() {
@@ -56,6 +19,25 @@ export function useRestaurants() {
       const response = await restaurantAPI.getAll()
       return response.data.restaurants as Restaurant[]
     },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  })
+}
+
+// Hook for infinite loading of restaurants
+export function useInfiniteRestaurants(params?: Omit<RestaurantAPIParams, 'cursor' | 'page'>) {
+  return useInfiniteQuery({
+    queryKey: RESTAURANT_QUERY_KEYS.infinite(params),
+    queryFn: async ({ pageParam }) => {
+      const response = await restaurantAPI.getAll({
+        ...params,
+        cursor: pageParam,
+        limit: 12, // Default page size
+      })
+      return response.data as RestaurantsResponse
+    },
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.pagination?.nextCursor,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   })
