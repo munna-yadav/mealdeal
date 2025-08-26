@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { ArrowLeft, Tag, DollarSign, Calendar, FileText, Building2 } from "lucide-react"
+import { ArrowLeft, Tag, DollarSign, Calendar, Building2 } from "lucide-react"
 import Link from "next/link"
 import type { RestaurantSimple as Restaurant } from "@/types"
 
@@ -123,9 +123,10 @@ export default function AddOfferPage() {
       setTimeout(() => {
         router.push('/profile')
       }, 2000)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error creating offer:', err)
-      const errorMessage = err.response?.data?.error || err.message || 'Failed to create offer'
+      const errorMessage = (err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || 
+                           (err as { message?: string })?.message || 'Failed to create offer'
       setError(errorMessage)
     } finally {
       setIsSubmitting(false)

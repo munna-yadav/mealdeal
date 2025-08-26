@@ -86,9 +86,10 @@ export default function AddRestaurantPage() {
       setTimeout(() => {
         router.push('/profile?tab=restaurants')
       }, 2000)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error creating restaurant:', err)
-      const errorMessage = err.response?.data?.error || err.message || 'Failed to create restaurant'
+      const errorMessage = (err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || 
+                           (err as { message?: string })?.message || 'Failed to create restaurant'
       setError(errorMessage)
     }
   }
@@ -206,7 +207,7 @@ export default function AddRestaurantPage() {
                       Precise Location (Optional)
                     </Label>
                     <p className="text-sm text-muted-foreground mb-2">
-                      Add your restaurant's exact coordinates to help customers find you and improve search results.
+                      Add your restaurant&apos;s exact coordinates to help customers find you and improve search results.
                     </p>
                     <LocationSearch
                       onLocationChange={handleLocationChange}

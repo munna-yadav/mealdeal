@@ -89,9 +89,9 @@ export default function EditRestaurantPage({ params }: EditRestaurantPageProps) 
         }
 
         setLoading(false)
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error loading restaurant:', err)
-        setError(err.response?.data?.error || 'Failed to load restaurant')
+        setError((err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to load restaurant')
         setLoading(false)
       }
     }
@@ -187,9 +187,10 @@ export default function EditRestaurantPage({ params }: EditRestaurantPageProps) 
       setTimeout(() => {
         router.push('/profile?tab=restaurants')
       }, 2000)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error updating restaurant:', err)
-      const errorMessage = err.response?.data?.error || err.message || 'Failed to update restaurant'
+      const errorMessage = (err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || 
+                           (err as { message?: string })?.message || 'Failed to update restaurant'
       setError(errorMessage)
       toast({
         title: "Failed to update restaurant",
