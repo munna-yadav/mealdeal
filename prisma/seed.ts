@@ -128,6 +128,202 @@ async function main() {
       image: 'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=800&h=600&fit=crop',
       ownerId: demoUser.id,
     },
+    {
+      name: 'Golden Dragon',
+      cuisine: 'Chinese',
+      description: 'Authentic Cantonese cuisine with traditional dim sum and wok-fried specialties. Family-owned for over 30 years.',
+      location: '888 Dragon Court, Chinatown',
+      latitude: 40.7589,
+      longitude: -73.9851,
+      phone: '(555) 123-8888',
+      hours: 'Daily: 10:00 AM - 10:00 PM',
+      rating: 4.5,
+      reviewCount: 312,
+      image: 'https://images.unsplash.com/photo-1525755662778-989d0524087e?w=800&h=600&fit=crop',
+      ownerId: demoUser.id,
+    },
+    {
+      name: 'Cafe Milano',
+      cuisine: 'Italian',
+      description: 'Cozy Italian cafe with handmade pasta, wood-fired pizzas, and artisanal gelato. Perfect for casual dining.',
+      location: '246 Little Italy St, Historic District',
+      latitude: 40.7194,
+      longitude: -73.9927,
+      phone: '(555) 234-5679',
+      hours: 'Mon-Thu: 11:00 AM - 9:00 PM, Fri-Sat: 11:00 AM - 10:00 PM',
+      rating: 4.3,
+      reviewCount: 187,
+      image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=600&fit=crop',
+      ownerId: demoUser.id,
+    },
+    {
+      name: 'The Steakhouse Prime',
+      cuisine: 'American',
+      description: 'Premium steakhouse featuring USDA Prime cuts, extensive wine list, and elegant atmosphere for special occasions.',
+      location: '101 Prime Ave, Financial District',
+      latitude: 40.7074,
+      longitude: -74.0113,
+      phone: '(555) 345-7890',
+      hours: 'Mon-Sat: 5:00 PM - 11:00 PM, Sun: 4:00 PM - 9:00 PM',
+      rating: 4.8,
+      reviewCount: 445,
+      image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&h=600&fit=crop',
+      ownerId: demoUser.id,
+    },
+    {
+      name: 'Thai Garden',
+      cuisine: 'Thai',
+      description: 'Traditional Thai cuisine with authentic flavors and fresh herbs. Extensive vegetarian menu and customizable spice levels.',
+      location: '369 Spice Market Rd, Asian Village',
+      latitude: 40.7505,
+      longitude: -73.9934,
+      phone: '(555) 456-7891',
+      hours: 'Tue-Sun: 11:30 AM - 9:30 PM',
+      rating: 4.4,
+      reviewCount: 201,
+      image: 'https://images.unsplash.com/photo-1562565652-a0d8f0c59eb4?w=800&h=600&fit=crop',
+      ownerId: demoUser.id,
+    },
+    {
+      name: 'Bistro Francais',
+      cuisine: 'French',
+      description: 'Authentic French bistro with classic dishes, extensive wine selection, and charming Parisian atmosphere.',
+      location: '47 Rue de la Paix, French Quarter',
+      latitude: 40.7419,
+      longitude: -73.9891,
+      phone: '(555) 567-8902',
+      hours: 'Wed-Mon: 5:30 PM - 10:00 PM',
+      rating: 4.6,
+      reviewCount: 298,
+      image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=800&h=600&fit=crop',
+      ownerId: demoUser.id,
+    },
+    {
+      name: 'Seoul Kitchen',
+      cuisine: 'Korean',
+      description: 'Modern Korean BBQ and traditional dishes with tabletop grilling and all-you-can-eat banchan.',
+      location: '789 K-Town Plaza, Koreatown',
+      latitude: 40.7505,
+      longitude: -73.9855,
+      phone: '(555) 678-9013',
+      hours: 'Daily: 12:00 PM - 11:00 PM',
+      rating: 4.5,
+      reviewCount: 156,
+      image: 'https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=800&h=600&fit=crop',
+      ownerId: demoUser.id,
+    },
+    {
+      name: 'Mediterranean Breeze',
+      cuisine: 'Mediterranean',
+      description: 'Fresh Mediterranean cuisine with grilled seafood, mezze platters, and house-made hummus and pita.',
+      location: '258 Olive Grove Ave, Harbor District',
+      latitude: 40.7282,
+      longitude: -74.0444,
+      phone: '(555) 789-0124',
+      hours: 'Mon-Sat: 11:00 AM - 9:00 PM, Sun: 12:00 PM - 8:00 PM',
+      rating: 4.3,
+      reviewCount: 223,
+      image: 'https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=800&h=600&fit=crop',
+      ownerId: demoUser.id,
+    },
+    {
+      name: 'Pho Saigon',
+      cuisine: 'Vietnamese',
+      description: 'Authentic Vietnamese pho and banh mi with homemade broths simmered for 24 hours and fresh herbs.',
+      location: '456 Little Saigon St, Vietnam Town',
+      latitude: 40.7359,
+      longitude: -73.9911,
+      phone: '(555) 890-1235',
+      hours: 'Daily: 10:00 AM - 9:00 PM',
+      rating: 4.4,
+      reviewCount: 187,
+      image: 'https://images.unsplash.com/photo-1555126634-323283e090fa?w=800&h=600&fit=crop',
+      ownerId: demoUser.id,
+    },
+    {
+      name: 'Brooklyn Heights Deli',
+      cuisine: 'American',
+      description: 'Classic New York deli with towering pastrami sandwiches, fresh bagels, and traditional Jewish-style dishes.',
+      location: '147 Heights Blvd, Brooklyn Heights',
+      latitude: 40.6962,
+      longitude: -73.9969,
+      phone: '(555) 901-2346',
+      hours: 'Daily: 7:00 AM - 7:00 PM',
+      rating: 4.2,
+      reviewCount: 341,
+      image: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=800&h=600&fit=crop',
+      ownerId: demoUser.id,
+    },
+    {
+      name: 'Tapas Barcelona',
+      cuisine: 'Spanish',
+      description: 'Spanish tapas bar with authentic small plates, paella, and extensive selection of Spanish wines and sangria.',
+      location: '321 Barcelona Way, Spanish District',
+      latitude: 40.7383,
+      longitude: -73.9944,
+      phone: '(555) 012-3457',
+      hours: 'Tue-Sun: 4:00 PM - 12:00 AM',
+      rating: 4.5,
+      reviewCount: 278,
+      image: 'https://images.unsplash.com/photo-1544148103-0773bf10d330?w=800&h=600&fit=crop',
+      ownerId: demoUser.id,
+    },
+    {
+      name: 'Green Garden Vegan',
+      cuisine: 'Vegan',
+      description: 'Plant-based restaurant with creative vegan dishes, fresh smoothie bowls, and sustainable ingredients.',
+      location: '852 Green Street, Eco Village',
+      latitude: 40.7341,
+      longitude: -74.0089,
+      phone: '(555) 123-4568',
+      hours: 'Mon-Sat: 8:00 AM - 8:00 PM, Sun: 9:00 AM - 6:00 PM',
+      rating: 4.6,
+      reviewCount: 134,
+      image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&h=600&fit=crop',
+      ownerId: demoUser.id,
+    },
+    {
+      name: 'Pizza Corner',
+      cuisine: 'Italian',
+      description: 'Authentic Neapolitan pizza with wood-fired oven, imported ingredients, and traditional Italian recipes.',
+      location: '963 Pizza Plaza, Little Italy',
+      latitude: 40.7193,
+      longitude: -73.9928,
+      phone: '(555) 234-5679',
+      hours: 'Daily: 11:00 AM - 11:00 PM',
+      rating: 4.4,
+      reviewCount: 289,
+      image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=600&fit=crop',
+      ownerId: demoUser.id,
+    },
+    {
+      name: 'Samba Brazilian Grill',
+      cuisine: 'Brazilian',
+      description: 'All-you-can-eat Brazilian churrasco with endless grilled meats, salad bar, and traditional sides.',
+      location: '741 Carnival Avenue, Brazil Quarter',
+      latitude: 40.7451,
+      longitude: -73.9863,
+      phone: '(555) 345-6780',
+      hours: 'Daily: 5:00 PM - 10:00 PM',
+      rating: 4.7,
+      reviewCount: 367,
+      image: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=800&h=600&fit=crop',
+      ownerId: demoUser.id,
+    },
+    {
+      name: 'The Fish Market',
+      cuisine: 'Seafood',
+      description: 'Fresh seafood market and restaurant with daily catches, raw bar, and sustainable fishing practices.',
+      location: '159 Harbor View, Fisherman\'s Wharf',
+      latitude: 40.7051,
+      longitude: -74.0179,
+      phone: '(555) 456-7891',
+      hours: 'Tue-Sat: 11:00 AM - 9:00 PM, Sun: 12:00 PM - 8:00 PM',
+      rating: 4.5,
+      reviewCount: 201,
+      image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&h=600&fit=crop',
+      ownerId: demoUser.id,
+    },
   ]
 
   // Create restaurants
@@ -276,6 +472,314 @@ async function main() {
       terms: 'Includes guacamole, sour cream, cheese, and unlimited tortillas.',
       expiresAt: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // 15 days from now
       restaurantId: createdRestaurants[7].id, // La Cantina
+    },
+    
+    // Golden Dragon offers
+    {
+      title: 'Dim Sum Brunch for 4',
+      description: 'Unlimited dim sum selection with jasmine tea for up to 4 people.',
+      originalPrice: 88,
+      discountedPrice: 59,
+      discount: 33,
+      terms: 'Weekend brunch only. 2-hour time limit. Must order tea.',
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[8].id, // Golden Dragon
+    },
+    {
+      title: 'Peking Duck Dinner',
+      description: 'Whole Peking duck with pancakes, scallions, and hoisin sauce.',
+      originalPrice: 75,
+      discountedPrice: 52,
+      discount: 31,
+      terms: 'Serves 2-3 people. 24-hour advance notice required.',
+      expiresAt: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[8].id, // Golden Dragon
+    },
+    
+    // Cafe Milano offers
+    {
+      title: 'Pasta & Wine Night',
+      description: 'Choice of handmade pasta dish with glass of Italian wine.',
+      originalPrice: 35,
+      discountedPrice: 25,
+      discount: 29,
+      terms: 'Available after 6 PM. Must be 21+ for wine. Non-alcoholic options available.',
+      expiresAt: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[9].id, // Cafe Milano
+    },
+    {
+      title: 'Wood-Fired Pizza Special',
+      description: 'Large wood-fired pizza with choice of 3 toppings and caesar salad.',
+      originalPrice: 28,
+      discountedPrice: 19,
+      discount: 32,
+      terms: 'Dine-in only. Cannot split toppings between halves.',
+      expiresAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[9].id, // Cafe Milano
+    },
+    
+    // The Steakhouse Prime offers
+    {
+      title: 'Prime Ribeye Dinner for Two',
+      description: '16oz prime ribeye with sides, dessert, and bottle of wine.',
+      originalPrice: 145,
+      discountedPrice: 98,
+      discount: 32,
+      terms: 'Dinner only. Wine selection limited to house options. Reservations required.',
+      expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[10].id, // The Steakhouse Prime
+    },
+    {
+      title: 'Happy Hour Steak Bites',
+      description: 'Tenderloin bites with truffle fries and craft cocktail.',
+      originalPrice: 42,
+      discountedPrice: 28,
+      discount: 33,
+      terms: 'Happy hour only (5-7 PM). Bar seating required.',
+      expiresAt: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[10].id, // The Steakhouse Prime
+    },
+    
+    // Thai Garden offers
+    {
+      title: 'Thai Curry Feast',
+      description: 'Choice of curry, pad thai, spring rolls, and jasmine rice.',
+      originalPrice: 32,
+      discountedPrice: 22,
+      discount: 31,
+      terms: 'Spice level customizable. Vegetarian and vegan options available.',
+      expiresAt: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[11].id, // Thai Garden
+    },
+    {
+      title: 'Mango Sticky Rice & Tea Set',
+      description: 'Traditional mango sticky rice dessert with Thai tea.',
+      originalPrice: 18,
+      discountedPrice: 12,
+      discount: 33,
+      terms: 'Seasonal mango availability. Can be made vegan upon request.',
+      expiresAt: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[11].id, // Thai Garden
+    },
+    
+    // Bistro Francais offers
+    {
+      title: 'French Onion Soup & Coq au Vin',
+      description: 'Classic French onion soup followed by traditional coq au vin.',
+      originalPrice: 48,
+      discountedPrice: 33,
+      discount: 31,
+      terms: 'Wine pairing available for additional cost. Dinner only.',
+      expiresAt: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[12].id, // Bistro Francais
+    },
+    {
+      title: 'Cheese & Charcuterie Board',
+      description: 'Selection of French cheeses and cured meats with wine pairing.',
+      originalPrice: 38,
+      discountedPrice: 26,
+      discount: 32,
+      terms: 'Perfect for sharing. Wine pairing included. Must be 21+.',
+      expiresAt: new Date(Date.now() + 13 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[12].id, // Bistro Francais
+    },
+    
+    // Seoul Kitchen offers
+    {
+      title: 'Korean BBQ All-You-Can-Eat',
+      description: 'Unlimited Korean BBQ with banchan and lettuce wraps for 2 hours.',
+      originalPrice: 65,
+      discountedPrice: 45,
+      discount: 31,
+      terms: '2-hour time limit. Minimum 2 people. No sharing between tables.',
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[13].id, // Seoul Kitchen
+    },
+    {
+      title: 'Bibimbap & Kimchi Combo',
+      description: 'Traditional bibimbap with house-made kimchi and miso soup.',
+      originalPrice: 24,
+      discountedPrice: 17,
+      discount: 29,
+      terms: 'Choice of protein. Extra gochujang available. Vegetarian option available.',
+      expiresAt: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[13].id, // Seoul Kitchen
+    },
+    
+    // Mediterranean Breeze offers
+    {
+      title: 'Mezze Platter for Sharing',
+      description: 'Large mezze platter with hummus, falafel, dolmas, and pita.',
+      originalPrice: 36,
+      discountedPrice: 24,
+      discount: 33,
+      terms: 'Serves 2-3 people. All vegetarian. Vegan options available.',
+      expiresAt: new Date(Date.now() + 11 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[14].id, // Mediterranean Breeze
+    },
+    {
+      title: 'Grilled Seafood Platter',
+      description: 'Mixed grilled seafood with lemon herb rice and Greek salad.',
+      originalPrice: 44,
+      discountedPrice: 31,
+      discount: 30,
+      terms: 'Market fish selection varies daily. Contains shellfish.',
+      expiresAt: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[14].id, // Mediterranean Breeze
+    },
+    
+    // Pho Saigon offers
+    {
+      title: 'Pho & Banh Mi Combo',
+      description: 'Large bowl of pho with choice of banh mi sandwich.',
+      originalPrice: 22,
+      discountedPrice: 16,
+      discount: 27,
+      terms: 'Choice of beef or chicken pho. Vegetarian options available.',
+      expiresAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[15].id, // Pho Saigon
+    },
+    {
+      title: 'Vietnamese Spring Roll Feast',
+      description: 'Fresh and fried spring rolls with peanut and fish dipping sauces.',
+      originalPrice: 28,
+      discountedPrice: 19,
+      discount: 32,
+      terms: 'Contains peanuts and fish sauce. Vegetarian rolls available.',
+      expiresAt: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[15].id, // Pho Saigon
+    },
+    
+    // Brooklyn Heights Deli offers
+    {
+      title: 'Pastrami on Rye Special',
+      description: 'Classic pastrami sandwich with pickle, coleslaw, and chips.',
+      originalPrice: 18,
+      discountedPrice: 13,
+      discount: 28,
+      terms: 'Served with house-made pickle. Extra meat available for additional cost.',
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[16].id, // Brooklyn Heights Deli
+    },
+    {
+      title: 'Bagel & Lox Breakfast',
+      description: 'Everything bagel with smoked salmon, cream cheese, and capers.',
+      originalPrice: 16,
+      discountedPrice: 11,
+      discount: 31,
+      terms: 'Available until 2 PM. Choice of bagel type.',
+      expiresAt: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[16].id, // Brooklyn Heights Deli
+    },
+    
+    // Tapas Barcelona offers
+    {
+      title: 'Tapas Tasting Menu',
+      description: '6 chef-selected tapas with sangria for two people.',
+      originalPrice: 55,
+      discountedPrice: 38,
+      discount: 31,
+      terms: 'Fixed menu selection. Sangria included. Must be 21+.',
+      expiresAt: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[17].id, // Tapas Barcelona
+    },
+    {
+      title: 'Paella Night Special',
+      description: 'Traditional paella valenciana with Spanish wine pairing.',
+      originalPrice: 42,
+      discountedPrice: 29,
+      discount: 31,
+      terms: 'Available Friday-Sunday only. Serves 2 people minimum.',
+      expiresAt: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[17].id, // Tapas Barcelona
+    },
+    
+    // Green Garden Vegan offers
+    {
+      title: 'Plant-Based Buddha Bowl',
+      description: 'Quinoa bowl with roasted vegetables, tahini dressing, and smoothie.',
+      originalPrice: 26,
+      discountedPrice: 18,
+      discount: 31,
+      terms: 'Completely vegan and gluten-free. Nut-free options available.',
+      expiresAt: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[18].id, // Green Garden Vegan
+    },
+    {
+      title: 'Vegan Burger & Sweet Potato Fries',
+      description: 'House-made black bean burger with avocado and baked sweet potato fries.',
+      originalPrice: 22,
+      discountedPrice: 16,
+      discount: 27,
+      terms: 'Made with organic ingredients. Gluten-free bun available.',
+      expiresAt: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[18].id, // Green Garden Vegan
+    },
+    
+    // Pizza Corner offers
+    {
+      title: 'Neapolitan Pizza & Gelato',
+      description: 'Authentic Neapolitan pizza with choice of artisanal gelato.',
+      originalPrice: 32,
+      discountedPrice: 23,
+      discount: 28,
+      terms: 'Wood-fired oven pizza. Gelato flavors change daily.',
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[19].id, // Pizza Corner
+    },
+    {
+      title: 'Pizza & Wine Date Night',
+      description: 'Two personal pizzas with bottle of Italian wine.',
+      originalPrice: 48,
+      discountedPrice: 34,
+      discount: 29,
+      terms: 'Perfect for couples. Wine selection varies. Must be 21+.',
+      expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[19].id, // Pizza Corner
+    },
+    
+    // Samba Brazilian Grill offers
+    {
+      title: 'Churrasco Rodizio Experience',
+      description: 'All-you-can-eat Brazilian BBQ with salad bar and caipirinhas.',
+      originalPrice: 68,
+      discountedPrice: 45,
+      discount: 34,
+      terms: 'Includes unlimited meat service and salad bar. Must be 21+ for caipirinhas.',
+      expiresAt: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[20].id, // Samba Brazilian Grill
+    },
+    {
+      title: 'Feijoada Wednesday Special',
+      description: 'Traditional Brazilian feijoada with rice, farofa, and orange slices.',
+      originalPrice: 35,
+      discountedPrice: 25,
+      discount: 29,
+      terms: 'Available Wednesdays only. Contains pork. Rice and beans included.',
+      expiresAt: new Date(Date.now() + 11 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[20].id, // Samba Brazilian Grill
+    },
+    
+    // The Fish Market offers
+    {
+      title: 'Daily Catch & Chips',
+      description: 'Fresh fish of the day with hand-cut fries and coleslaw.',
+      originalPrice: 29,
+      discountedPrice: 21,
+      discount: 28,
+      terms: 'Fish selection varies daily. Preparation style can be chosen.',
+      expiresAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[21].id, // The Fish Market
+    },
+    {
+      title: 'Seafood Platter for Two',
+      description: 'Mixed seafood platter with lobster, shrimp, oysters, and crab cakes.',
+      originalPrice: 85,
+      discountedPrice: 59,
+      discount: 31,
+      terms: 'Market price may vary. Contains shellfish. Served with drawn butter.',
+      expiresAt: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000),
+      restaurantId: createdRestaurants[21].id, // The Fish Market
     },
   ]
 
