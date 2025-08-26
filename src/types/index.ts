@@ -69,8 +69,16 @@ export interface Restaurant {
   offers: Array<{
     id: number
     title: string
-    isActive: boolean
+    description?: string
+    originalPrice: number
+    discountedPrice: number
+    discount: number
+    terms?: string
     expiresAt: string
+    isActive: boolean
+    restaurantId: number
+    createdAt: string
+    updatedAt: string
   }>
   distance?: number
   createdAt: string

@@ -9,6 +9,7 @@ export const RESTAURANT_QUERY_KEYS = {
   infinite: (params?: Omit<RestaurantAPIParams, 'cursor' | 'page'>) => 
     ['restaurants', 'infinite', params] as const,
   byOwner: (ownerId: number) => ['restaurants', 'owner', ownerId] as const,
+  byId: (id: number) => ['restaurants', 'detail', id] as const,
 } as const
 
 // Hook to get all restaurants
@@ -53,6 +54,21 @@ export function useRestaurantsByOwner(ownerId?: number) {
       return response.data.restaurants as Restaurant[]
     },
     enabled: !!ownerId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  })
+}
+
+// Hook to get a single restaurant by ID
+export function useRestaurant(id?: number) {
+  return useQuery({
+    queryKey: RESTAURANT_QUERY_KEYS.byId(id!),
+    queryFn: async () => {
+      if (!id) return null
+      const response = await restaurantAPI.getById(id)
+      return response.data.restaurant as Restaurant
+    },
+    enabled: !!id,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   })

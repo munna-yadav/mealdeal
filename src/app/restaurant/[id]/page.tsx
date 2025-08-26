@@ -8,11 +8,12 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Star, MapPin, Clock, Phone, Heart, Share, Calendar, Gift } from "lucide-react"
-import { restaurantAPI, reservationsAPI, dealsAPI } from "@/lib/api"
+import { dealsAPI } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/hooks/useAuth"
+import { useRestaurant } from "@/hooks/useRestaurants"
 import { ReservationModal } from "@/components/reservation-modal"
-import type { Restaurant } from "@/hooks/useRestaurants"
+import type { Restaurant } from "@/types"
 
 // Default placeholder data for loading/error states
 const defaultImages = [
@@ -28,38 +29,29 @@ interface RestaurantPageProps {
 }
 
 export default function RestaurantPage({ params }: RestaurantPageProps) {
-  const [restaurant, setRestaurant] = useState<Restaurant | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [restaurantId, setRestaurantId] = useState<number | null>(null)
   const [showReservationModal, setShowReservationModal] = useState(false)
   const [claimingDeals, setClaimingDeals] = useState<Set<number>>(new Set())
   const [claimedDeals, setClaimedDeals] = useState<Set<number>>(new Set())
   const { toast } = useToast()
   const { isAuthenticated, user } = useAuth()
 
+  // Extract restaurant ID from params
   useEffect(() => {
-    async function fetchRestaurant() {
-      try {
-        const { id } = await params
-        const response = await restaurantAPI.getById(parseInt(id))
-        const restaurant = response.data.restaurant
-        
-        if (!restaurant) {
-          notFound()
-          return
-        }
-        
-        setRestaurant(restaurant)
-      } catch (err) {
-        console.error('Error fetching restaurant:', err)
-        setError('Failed to load restaurant')
-      } finally {
-        setLoading(false)
-      }
+    async function extractId() {
+      const { id } = await params
+      setRestaurantId(parseInt(id))
     }
-
-    fetchRestaurant()
+    extractId()
   }, [params])
+
+  // Use the restaurant hook
+  const { data: restaurant, isLoading: loading, error, isError } = useRestaurant(restaurantId || undefined)
+
+  // Handle not found case
+  if (!loading && !restaurant && !error) {
+    notFound()
+  }
 
   // Handler functions for the action buttons
   const handleCallRestaurant = () => {
@@ -154,15 +146,22 @@ export default function RestaurantPage({ params }: RestaurantPageProps) {
     )
   }
 
-  if (error || !restaurant) {
+  if (isError || (!loading && !restaurant)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Restaurant Not Found</h1>
-          <p className="text-muted-foreground">{error || 'The restaurant you are looking for does not exist.'}</p>
+          <p className="text-muted-foreground">
+            {error?.message || 'The restaurant you are looking for does not exist.'}
+          </p>
         </div>
       </div>
     )
+  }
+
+  // Return early if no restaurant data
+  if (!restaurant) {
+    return null
   }
 
   // Calculate active offers
@@ -450,12 +449,14 @@ export default function RestaurantPage({ params }: RestaurantPageProps) {
       </div>
       
       {/* Reservation Modal */}
-      <ReservationModal
-        isOpen={showReservationModal}
-        onClose={() => setShowReservationModal(false)}
-        restaurantId={restaurant.id}
-        restaurantName={restaurant.name}
-      />
+      {restaurant && (
+        <ReservationModal
+          isOpen={showReservationModal}
+          onClose={() => setShowReservationModal(false)}
+          restaurantId={restaurant.id}
+          restaurantName={restaurant.name}
+        />
+      )}
     </div>
   )
 }
