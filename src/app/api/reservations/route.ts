@@ -147,7 +147,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get('status')
 
     // Build where clause
-    const where: any = {
+    const where: Record<string, unknown> = {
       userId: decoded.userId,
     }
 

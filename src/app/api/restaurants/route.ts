@@ -89,9 +89,13 @@ export async function GET(req: NextRequest) {
     const userLng = searchParams.get('lng')
     const radius = searchParams.get('radius')
     const sortBy = searchParams.get('sortBy') || 'created'
+    
+    // Pagination parameters
+    const limit = parseInt(searchParams.get('limit') || '12')
+    const cursor = searchParams.get('cursor')
 
     // Build where clause
-    const where: any = {}
+    const where: Record<string, unknown> = {}
     
     if (ownerId) {
       where.ownerId = parseInt(ownerId)
@@ -114,8 +118,13 @@ export async function GET(req: NextRequest) {
       where.location = { contains: location, mode: 'insensitive' }
     }
 
+    // Add cursor pagination support
+    if (cursor) {
+      where.id = { gt: parseInt(cursor) }
+    }
+
     // Build order by clause
-    let orderBy: any = { createdAt: 'desc' }
+    let orderBy: Record<string, unknown> = { createdAt: 'desc' }
     
     switch (sortBy) {
       case 'rating':
@@ -131,8 +140,8 @@ export async function GET(req: NextRequest) {
         orderBy = { createdAt: 'desc' }
     }
 
-    // Fetch restaurants
-    let restaurants: any[] = await prisma.restaurant.findMany({
+    // Fetch restaurants with pagination
+    const restaurants = await prisma.restaurant.findMany({
       where,
       include: {
         owner: {
@@ -152,7 +161,17 @@ export async function GET(req: NextRequest) {
         },
       },
       orderBy,
+      take: limit + 1, // Take one extra to check if there's a next page
     })
+
+    // Check if there's a next page
+    const hasNextPage = restaurants.length > limit
+    if (hasNextPage) {
+      restaurants = restaurants.slice(0, limit) // Remove the extra item
+    }
+
+    // Get total count for the current query
+    const totalCount = await prisma.restaurant.count({ where })
 
     // Apply location-based filtering if coordinates are provided
     if (userLat && userLng && radius) {
@@ -202,6 +221,11 @@ export async function GET(req: NextRequest) {
       orderBy: { location: 'asc' },
     })
 
+    // Determine next cursor
+    const nextCursor = hasNextPage && restaurants.length > 0 
+      ? restaurants[restaurants.length - 1].id.toString() 
+      : undefined
+
     return NextResponse.json({
       restaurants,
       filters: {
@@ -209,6 +233,11 @@ export async function GET(req: NextRequest) {
         locations: locations.map(l => l.location),
       },
       count: restaurants.length,
+      pagination: {
+        hasNextPage,
+        nextCursor,
+        totalCount,
+      },
     })
   } catch (error) {
     console.error('Error fetching restaurants:', error)

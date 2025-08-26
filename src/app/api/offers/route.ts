@@ -134,9 +134,13 @@ export async function GET(req: NextRequest) {
     const userLng = searchParams.get('lng')
     const radius = searchParams.get('radius')
     const sortBy = searchParams.get('sortBy') || 'created'
+    
+    // Pagination parameters
+    const limit = parseInt(searchParams.get('limit') || '12')
+    const cursor = searchParams.get('cursor')
 
     // Build where clause
-    const whereClause: any = {}
+    const whereClause: Record<string, unknown> = {}
 
     if (restaurantId) {
       whereClause.restaurantId = parseInt(restaurantId)
@@ -150,7 +154,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Build restaurant filters for nested queries
-    const restaurantWhere: any = {}
+    const restaurantWhere: Record<string, unknown> = {}
 
     if (search) {
       whereClause.OR = [
@@ -174,6 +178,11 @@ export async function GET(req: NextRequest) {
       whereClause.restaurant = restaurantWhere
     }
 
+    // Add cursor pagination support
+    if (cursor) {
+      whereClause.id = { gt: parseInt(cursor) }
+    }
+
     // Add discount filter
     if (discount && discount !== 'all') {
       switch (discount) {
@@ -190,7 +199,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Build order by clause
-    let orderBy: any = { createdAt: 'desc' }
+    let orderBy: Record<string, unknown> = { createdAt: 'desc' }
     
     switch (sortBy) {
       case 'discount':
@@ -212,8 +221,8 @@ export async function GET(req: NextRequest) {
         orderBy = { createdAt: 'desc' }
     }
 
-    // Fetch offers
-    let offers: any[] = await prisma.offer.findMany({
+    // Fetch offers with pagination
+    const offers = await prisma.offer.findMany({
       where: whereClause,
       include: {
         restaurant: {
@@ -230,7 +239,17 @@ export async function GET(req: NextRequest) {
         },
       },
       orderBy,
+      take: limit + 1, // Take one extra to check if there's a next page
     })
+
+    // Check if there's a next page
+    const hasNextPage = offers.length > limit
+    if (hasNextPage) {
+      offers = offers.slice(0, limit) // Remove the extra item
+    }
+
+    // Get total count for the current query
+    const totalCount = await prisma.offer.count({ where: whereClause })
 
     // Apply location-based filtering if coordinates are provided
     if (userLat && userLng && radius) {
@@ -280,6 +299,11 @@ export async function GET(req: NextRequest) {
       orderBy: { location: 'asc' },
     })
 
+    // Determine next cursor
+    const nextCursor = hasNextPage && offers.length > 0 
+      ? offers[offers.length - 1].id.toString() 
+      : undefined
+
     return NextResponse.json({
       offers,
       filters: {
@@ -287,6 +311,11 @@ export async function GET(req: NextRequest) {
         locations: locations.map(l => l.location),
       },
       count: offers.length,
+      pagination: {
+        hasNextPage,
+        nextCursor,
+        totalCount,
+      },
     })
   } catch (error) {
     console.error('Error fetching offers:', error)
