@@ -41,16 +41,15 @@ export default function RestaurantPage({ params }: RestaurantPageProps) {
     async function fetchRestaurant() {
       try {
         const { id } = await params
-        const response = await restaurantAPI.getAll()
-        const restaurants = response.data.restaurants
-        const foundRestaurant = restaurants.find((r: Restaurant) => r.id.toString() === id)
+        const response = await restaurantAPI.getById(parseInt(id))
+        const restaurant = response.data.restaurant
         
-        if (!foundRestaurant) {
-    notFound()
+        if (!restaurant) {
+          notFound()
           return
         }
         
-        setRestaurant(foundRestaurant)
+        setRestaurant(restaurant)
       } catch (err) {
         console.error('Error fetching restaurant:', err)
         setError('Failed to load restaurant')
