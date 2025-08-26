@@ -14,7 +14,7 @@ import { LocationSearch } from "@/components/location-search"
 import { ArrowLeft, Building2, MapPin, Phone, Clock, FileText, Image as ImageIcon, Navigation, Save } from "lucide-react"
 import Link from "next/link"
 import { type LocationData } from "@/lib/geolocation"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 
 interface EditRestaurantPageProps {
   params: Promise<{
@@ -26,7 +26,7 @@ export default function EditRestaurantPage({ params }: EditRestaurantPageProps) 
   const { isAuthorized, isLoading: authLoading } = useAuthGuard()
   const router = useRouter()
   const updateRestaurantMutation = useUpdateRestaurant()
-  const { toast } = useToast()
+  // Toast is imported from sonner
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -179,8 +179,7 @@ export default function EditRestaurantPage({ params }: EditRestaurantPageProps) 
       })
       
       setSuccess(true)
-      toast({
-        title: "Restaurant updated successfully! 🎉",
+      toast.success("Restaurant updated successfully! 🎉", {
         description: "Your restaurant information has been updated."
       })
       
@@ -192,10 +191,8 @@ export default function EditRestaurantPage({ params }: EditRestaurantPageProps) 
       const errorMessage = (err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || 
                            (err as { message?: string })?.message || 'Failed to update restaurant'
       setError(errorMessage)
-      toast({
-        title: "Failed to update restaurant",
-        description: errorMessage,
-        variant: "destructive"
+      toast.error("Failed to update restaurant", {
+        description: errorMessage
       })
     }
   }

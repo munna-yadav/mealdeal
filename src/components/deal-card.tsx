@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 import { Star, Clock, MapPin, Heart, Gift } from "lucide-react"
 import { dealsAPI } from "@/lib/api"
 import { useAuth } from "@/hooks/useAuth"
@@ -24,7 +24,6 @@ export function DealCard({
 }: DealCardProps) {
   const [isClaimingDeal, setIsClaimingDeal] = useState(false)
   const [isDealClaimed, setIsDealClaimed] = useState(false)
-  const { toast } = useToast()
   const { isAuthenticated, user } = useAuth()
 
   const handleClaimDeal = async (e: React.MouseEvent) => {
@@ -32,10 +31,8 @@ export function DealCard({
     e.stopPropagation()
 
     if (!isAuthenticated) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to claim deals",
-        variant: "destructive"
+      toast.error("Authentication required", {
+        description: "Please sign in to claim deals"
       })
       return
     }
@@ -45,15 +42,12 @@ export function DealCard({
       const response = await dealsAPI.claim(parseInt(id))
       
       setIsDealClaimed(true)
-      toast({
-        title: "Deal claimed successfully! 🎉",
-        description: `Redemption code: ${response.data.claimedDeal.redemptionCode}`,
+      toast.success("Deal claimed successfully! 🎉", {
+        description: `Redemption code: ${response.data.claimedDeal.redemptionCode}`
       })
     } catch (error: unknown) {
-      toast({
-        title: "Failed to claim deal",
-        description: (error as { response?: { data?: { error?: string } } })?.response?.data?.error || "Please try again later",
-        variant: "destructive"
+      toast.error("Failed to claim deal", {
+        description: (error as { response?: { data?: { error?: string } } })?.response?.data?.error || "Please try again later"
       })
     } finally {
       setIsClaimingDeal(false)

@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog"
 import { Calendar, Clock, Users } from "lucide-react"
 import { reservationsAPI } from "@/lib/api"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 import type { ReservationModalProps } from "@/types"
 
 export function ReservationModal({ isOpen, onClose, restaurantId, restaurantName }: ReservationModalProps) {
@@ -29,7 +29,7 @@ export function ReservationModal({ isOpen, onClose, restaurantId, restaurantName
     email: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { toast } = useToast()
+  // Toast is imported from sonner
 
   // Get today's date in YYYY-MM-DD format for min date
   const today = new Date().toISOString().split('T')[0]
@@ -56,10 +56,8 @@ export function ReservationModal({ isOpen, onClose, restaurantId, restaurantName
     e.preventDefault()
     
     if (!formData.date || !formData.time || !formData.partySize) {
-      toast({
-        title: "Missing information",
-        description: "Please fill in date, time, and party size",
-        variant: "destructive"
+      toast.error("Missing information", {
+        description: "Please fill in date, time, and party size"
       })
       return
     }
@@ -76,8 +74,7 @@ export function ReservationModal({ isOpen, onClose, restaurantId, restaurantName
         email: formData.email || undefined
       })
 
-      toast({
-        title: "Reservation submitted! 🎉",
+      toast.success("Reservation submitted! 🎉", {
         description: `Your reservation request for ${restaurantName} has been sent.`
       })
 
@@ -92,10 +89,8 @@ export function ReservationModal({ isOpen, onClose, restaurantId, restaurantName
       })
       onClose()
     } catch (error: unknown) {
-      toast({
-        title: "Failed to make reservation",
-        description: (error as { response?: { data?: { error?: string } } })?.response?.data?.error || "Please try again later",
-        variant: "destructive"
+      toast.error("Failed to make reservation", {
+        description: (error as { response?: { data?: { error?: string } } })?.response?.data?.error || "Please try again later"
       })
     } finally {
       setIsSubmitting(false)

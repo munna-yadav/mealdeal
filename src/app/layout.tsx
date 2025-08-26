@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/navbar";
 import { QueryProvider } from "@/providers/query-provider";
 import { AuthDebug } from "@/components/auth-debug";
+import { Toaster } from "sonner";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default function RootLayout({
             <Navbar />
             <main>{children}</main>
             <AuthDebug />
+            <Toaster />
           </QueryProvider>
         </ThemeProvider>
       </body>

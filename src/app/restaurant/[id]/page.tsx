@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Star, MapPin, Clock, Phone, Heart, Share, Calendar, Gift } from "lucide-react"
 import { restaurantAPI, reservationsAPI, dealsAPI } from "@/lib/api"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 import { useAuth } from "@/hooks/useAuth"
 import { ReservationModal } from "@/components/reservation-modal"
 import type { Restaurant } from "@/hooks/useRestaurants"
@@ -34,7 +34,6 @@ export default function RestaurantPage({ params }: RestaurantPageProps) {
   const [showReservationModal, setShowReservationModal] = useState(false)
   const [claimingDeals, setClaimingDeals] = useState<Set<number>>(new Set())
   const [claimedDeals, setClaimedDeals] = useState<Set<number>>(new Set())
-  const { toast } = useToast()
   const { isAuthenticated, user } = useAuth()
 
   useEffect(() => {
@@ -59,10 +58,8 @@ export default function RestaurantPage({ params }: RestaurantPageProps) {
     if (restaurant?.phone) {
       window.location.href = `tel:${restaurant.phone}`
     } else {
-      toast({
-        title: "Phone number not available",
-        description: "This restaurant hasn't provided a phone number",
-        variant: "destructive"
+      toast.error("Phone number not available", {
+        description: "This restaurant hasn't provided a phone number"
       })
     }
   }
@@ -78,20 +75,16 @@ export default function RestaurantPage({ params }: RestaurantPageProps) {
       const url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`
       window.open(url, '_blank')
     } else {
-      toast({
-        title: "Location not available",
-        description: "This restaurant's location information is not available",
-        variant: "destructive"
+      toast.error("Location not available", {
+        description: "This restaurant's location information is not available"
       })
     }
   }
 
   const handleMakeReservation = () => {
     if (!isAuthenticated) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to make a reservation",
-        variant: "destructive"
+      toast.error("Authentication required", {
+        description: "Please sign in to make a reservation"
       })
       return
     }
@@ -100,10 +93,8 @@ export default function RestaurantPage({ params }: RestaurantPageProps) {
 
   const handleClaimDeal = async (offerId: number) => {
     if (!isAuthenticated) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to claim deals",
-        variant: "destructive"
+      toast.error("Authentication required", {
+        description: "Please sign in to claim deals"
       })
       return
     }
@@ -115,15 +106,12 @@ export default function RestaurantPage({ params }: RestaurantPageProps) {
       const response = await dealsAPI.claim(offerId)
       
       setClaimedDeals(prev => new Set(prev).add(offerId))
-      toast({
-        title: "Deal claimed successfully! 🎉",
-        description: `Redemption code: ${response.data.claimedDeal.redemptionCode}`,
+      toast.success("Deal claimed successfully! 🎉", {
+        description: `Redemption code: ${response.data.claimedDeal.redemptionCode}`
       })
     } catch (error: unknown) {
-      toast({
-        title: "Failed to claim deal",
-        description: (error as { response?: { data?: { error?: string } } })?.response?.data?.error || "Please try again later",
-        variant: "destructive"
+      toast.error("Failed to claim deal", {
+        description: (error as { response?: { data?: { error?: string } } })?.response?.data?.error || "Please try again later"
       })
     } finally {
       setClaimingDeals(prev => {
