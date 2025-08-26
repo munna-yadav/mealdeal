@@ -13,9 +13,9 @@ export function QueryProvider({ children }: { children: ReactNode }) {
             // With SSR, we usually want to set some default staleTime
             // above 0 to avoid refetching immediately on the client
             staleTime: 60 * 1000, // 1 minute
-            retry: (failureCount, error: any) => {
+            retry: (failureCount, error: unknown) => {
               // Don't retry on 4xx errors
-              if (error?.response?.status >= 400 && error?.response?.status < 500) {
+              if ((error as { response?: { status?: number } })?.response?.status >= 400 && (error as { response?: { status?: number } })?.response?.status < 500) {
                 return false
               }
               return failureCount < 3
