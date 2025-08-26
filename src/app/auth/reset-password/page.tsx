@@ -52,7 +52,7 @@ export default function ResetPasswordPage() {
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords don't match")
+      setError("Passwords don&apos;t match")
       return
     }
 
@@ -159,7 +159,7 @@ export default function ResetPasswordPage() {
                   <CheckCircle className="h-4 w-4" />
                   <AlertDescription>
                     <strong>Success!</strong> Your password has been updated. 
-                    You'll be redirected to the sign in page in a few seconds.
+                    You&apos;ll be redirected to the sign in page in a few seconds.
                   </AlertDescription>
                 </Alert>
 
@@ -218,7 +218,7 @@ export default function ResetPasswordPage() {
           <CardHeader>
             <CardTitle>Create New Password</CardTitle>
             <CardDescription>
-              Choose a strong password that you haven't used before
+              Choose a strong password that you haven&apos;t used before
             </CardDescription>
           </CardHeader>
           

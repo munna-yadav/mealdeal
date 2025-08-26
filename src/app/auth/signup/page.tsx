@@ -42,7 +42,7 @@ export default function SignUpPage() {
     }
     
     if (formData.password !== formData.confirmPassword) {
-      throw new Error("Passwords don't match")
+      throw new Error("Passwords don&apos;t match")
     }
   }
 
@@ -60,14 +60,15 @@ export default function SignUpPage() {
       })
 
       setSuccess(true)
-    } catch (error: any) {
-      const message = error?.response?.data?.error || error?.message || "An error occurred"
+    } catch (error: unknown) {
+      const message = (error as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || 
+                     (error as { message?: string })?.message || "An error occurred"
       setError(message)
     }
   }
 
   // Show signup error from mutation if no local error
-  const displayError = error || (signupMutation.error as any)?.response?.data?.error
+  const displayError = error || (signupMutation.error as { response?: { data?: { error?: string } } })?.response?.data?.error
 
   if (success) {
     return (
@@ -80,7 +81,7 @@ export default function SignUpPage() {
             
             <h2 className="text-3xl font-bold">Check Your Email!</h2>
             <p className="mt-4 text-muted-foreground">
-              We've sent a verification link to <strong>{formData.email}</strong>
+              We&apos;ve sent a verification link to <strong>{formData.email}</strong>
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
               Click the link in the email to verify your account and start saving on amazing deals.
@@ -93,7 +94,7 @@ export default function SignUpPage() {
                 <Alert>
                   <Mail className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>Didn't receive the email?</strong>
+                    <strong>Didn&apos;t receive the email?</strong>
                     <br />
                     Check your spam folder or contact support if you need help.
                   </AlertDescription>

@@ -33,8 +33,9 @@ export default function VerifyPage() {
           router.push("/auth/signin")
         }, 3000)
         
-      } catch (error: any) {
-        const message = error?.response?.data?.error || error?.message || "Verification failed"
+      } catch (error: unknown) {
+        const message = (error as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || 
+                       (error as { message?: string })?.message || "Verification failed"
         setError(message)
       }
     }
@@ -43,7 +44,7 @@ export default function VerifyPage() {
   }, [token, router, verifyEmailMutation])
 
   const isLoading = verifyEmailMutation.isPending
-  const displayError = error || (verifyEmailMutation.error as any)?.response?.data?.error
+  const displayError = error || (verifyEmailMutation.error as { response?: { data?: { error?: string } } })?.response?.data?.error
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -120,7 +121,7 @@ export default function VerifyPage() {
                 <CheckCircle className="h-4 w-4" />
                 <AlertDescription>
                   <strong>Success!</strong> Your account is now active. 
-                  You'll be redirected to the sign in page in a few seconds.
+                  You&apos;ll be redirected to the sign in page in a few seconds.
                 </AlertDescription>
               </Alert>
             )}

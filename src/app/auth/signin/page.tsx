@@ -25,14 +25,15 @@ export default function SignInPage() {
     try {
       await signin({ email, password })
       router.push("/")
-    } catch (error: any) {
-      const message = error?.response?.data?.error || error?.message || "An error occurred"
+    } catch (error: unknown) {
+      const message = (error as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || 
+                     (error as { message?: string })?.message || "An error occurred"
       setError(message)
     }
   }
 
   // Show signin error from hook if no local error
-  const displayError = error || (signinError as any)?.response?.data?.error
+  const displayError = error || (signinError as { response?: { data?: { error?: string } } })?.response?.data?.error
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -150,7 +151,7 @@ export default function SignInPage() {
               </Button>
 
               <div className="text-center text-sm text-muted-foreground">
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <Link
                   href="/auth/signup"
                   className="font-medium text-primary hover:underline"
