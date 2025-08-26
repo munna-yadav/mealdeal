@@ -43,6 +43,7 @@ export default function Home() {
     id: offer.id.toString(),
     title: offer.title,
     restaurant: {
+      id: offer.restaurant.id.toString(),
       name: offer.restaurant.name,
       rating: offer.restaurant.rating,
       location: offer.restaurant.location

@@ -161,6 +161,7 @@ export interface DealCardProps {
   id: string
   title: string
   restaurant: {
+    id: string
     name: string
     rating: number
     location: string

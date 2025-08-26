@@ -98,7 +98,7 @@ export function DealCard({
           
           <div className="flex items-center justify-between">
             <Link 
-              href={`/restaurant/${id}`}
+              href={`/restaurant/${restaurant.id}`}
               className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               <span className="font-medium">{restaurant.name}</span>
