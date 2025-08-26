@@ -1,12 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { DealCard } from "@/components/deal-card"
 import { RestaurantCard } from "@/components/restaurant-card"
-import { Search, Star, TrendingUp } from "lucide-react"
+import { Search, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import { useRestaurants } from "@/hooks/useRestaurants"
 import { useOffers } from "@/hooks/useOffers"
@@ -107,8 +104,8 @@ export default function Home() {
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-amber-400/10 to-yellow-500/10 rounded-full blur-3xl"></div>
         </div>
         <div className="relative z-10">
-          <div className="container max-w-screen-2xl mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center space-y-8">
+          <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-4xl mx-auto text-center space-y-8">
               <div className="space-y-4">
                 <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
                 <span className="bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-600 bg-clip-text text-transparent">
@@ -125,7 +122,7 @@ export default function Home() {
               </div>
             
               {/* Search Bar */}
-              <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">
+              <div className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto justify-center items-center">
                 <Button size="lg" asChild className="h-12 px-8 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 border-0 shadow-lg hover:shadow-xl transition-all duration-200">
                   <Link href="/restaurants">
                     <Search className="mr-2 h-4 w-4" />
@@ -156,7 +153,7 @@ export default function Home() {
 
       {/* Categories */}
       <section className="py-16 bg-muted/10">
-        <div className="container max-w-screen-2xl mx-auto px-4">
+        <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">
               <span className="bg-gradient-to-r from-yellow-600 to-amber-500 bg-clip-text text-transparent">Browse by Cuisine</span>
@@ -164,7 +161,7 @@ export default function Home() {
             <p className="text-muted-foreground">Explore deals from your favorite food categories</p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 max-w-6xl mx-auto">
             {categoriesWithCounts.map((category) => (
               <Link
                 key={category.name}
@@ -184,13 +181,13 @@ export default function Home() {
 
       {/* Featured Deals */}
       <section className="py-16">
-        <div className="container max-w-screen-2xl mx-auto px-4">
+        <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                       <div className="flex items-center justify-between mb-12">
             <div>
               <h2 className="text-3xl font-bold mb-4">
                 🔥 <span className="bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">Featured Deals</span>
               </h2>
-              <p className="text-muted-foreground">Limited time offers you can't miss</p>
+              <p className="text-muted-foreground">Limited time offers you can&apos;t miss</p>
             </div>
             <Button asChild variant="outline">
               <Link href="/deals">
@@ -199,7 +196,7 @@ export default function Home() {
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {offersLoading ? (
               // Loading skeleton
               Array.from({ length: 3 }).map((_, i) => (
@@ -225,7 +222,7 @@ export default function Home() {
 
       {/* Popular Restaurants */}
       <section className="py-16 bg-muted/10">
-        <div className="container max-w-screen-2xl mx-auto px-4">
+        <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-12">
             <div>
               <h2 className="text-3xl font-bold mb-4">
@@ -239,7 +236,7 @@ export default function Home() {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {restaurantsLoading ? (
               // Loading skeleton
               Array.from({ length: 4 }).map((_, i) => (
@@ -265,7 +262,7 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="py-20 bg-primary">
-        <div className="container max-w-screen-2xl mx-auto px-4 text-center">
+        <div className="container max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="max-w-2xl mx-auto space-y-6">
             <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground">
               Ready to <span className="bg-gradient-to-r from-yellow-300 to-amber-200 bg-clip-text text-transparent">Save</span> on Your Next Meal?

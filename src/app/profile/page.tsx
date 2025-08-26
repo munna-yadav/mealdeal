@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { useAuthGuard } from "@/hooks/useAuthGuard"
 import { useRestaurantsByOwner } from "@/hooks/useRestaurants"
 import Image from "next/image"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -27,9 +28,9 @@ const userData = {
 }
 
 // Placeholder data - these features will be implemented later
-const savedDeals: any[] = []
-const dealHistory: any[] = []
-const favoriteRestaurants: any[] = []
+const savedDeals: unknown[] = []
+const dealHistory: unknown[] = []
+const favoriteRestaurants: unknown[] = []
 
 export default function ProfilePage() {
   const { isAuthorized, isLoading, user } = useAuthGuard()
@@ -80,7 +81,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen py-8">
-      <div className="container max-w-screen-2xl mx-auto px-4">
+      <div className="container max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Profile Header */}
         <div className="mb-8">
           <Card>
@@ -208,7 +209,7 @@ export default function ProfilePage() {
               </div>
               
               {savedDeals.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
                   {savedDeals.map((deal) => (
                     <div key={deal.id} className="relative">
                       <DealCard {...deal} />
@@ -223,7 +224,7 @@ export default function ProfilePage() {
                   <Heart className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
                   <h3 className="text-xl font-semibold mb-2">No saved deals yet</h3>
                   <p className="text-muted-foreground mb-4">
-                    Start saving deals you're interested in for easy access later
+                    Start saving deals you&apos;re interested in for easy access later
                   </p>
                   <Button>Browse Deals</Button>
                 </div>
@@ -238,16 +239,16 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-4">
                   <p className="text-muted-foreground">{userRestaurants.length} restaurants</p>
                   <Button asChild>
-                    <a href="/restaurant/add">
+                    <Link href="/restaurant/add">
                       <Plus className="w-4 h-4 mr-2" />
                       Add Restaurant
-                    </a>
+                    </Link>
                   </Button>
                 </div>
               </div>
               
               {isLoadingRestaurants ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
                   {[1, 2, 3].map((i) => (
                     <Card key={i} className="animate-pulse">
                       <div className="h-48 bg-gray-200 rounded-t-lg"></div>
@@ -260,7 +261,7 @@ export default function ProfilePage() {
                   ))}
                 </div>
               ) : userRestaurants.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
                   {userRestaurants.map((restaurant) => (
                     <Card key={restaurant.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                       <div className="relative h-48">
@@ -319,10 +320,10 @@ export default function ProfilePage() {
                     Create your first restaurant listing to start offering deals to customers
                   </p>
                   <Button asChild>
-                    <a href="/restaurant/add">
+                    <Link href="/restaurant/add">
                       <Plus className="w-4 h-4 mr-2" />
                       Add Your First Restaurant
-                    </a>
+                    </Link>
                   </Button>
                 </div>
               )}

@@ -1,72 +1,92 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { AdvancedSearch } from "@/components/advanced-search"
-import { Star, MapPin, Building2 } from "lucide-react"
-import { restaurantAPI } from "@/lib/api"
+import { Star, MapPin, Building2, Loader2 } from "lucide-react"
 import { formatDistance } from "@/lib/geolocation"
-import type { Restaurant, SearchFilters, LocationData } from "@/types"
+import { useInfiniteRestaurants } from "@/hooks/useRestaurants"
+import { useIntersection } from "@/hooks/useIntersection"
+import type { SearchFilters, RestaurantAPIParams } from "@/types"
 
 export default function RestaurantsPage() {
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [availableFilters, setAvailableFilters] = useState({ cuisines: [], locations: [] })
+  const [searchParams, setSearchParams] = useState<Omit<RestaurantAPIParams, 'cursor' | 'page'>>({
+    sortBy: 'rating'
+  })
 
-  const fetchRestaurants = async (filters: SearchFilters) => {
-    setIsLoading(true)
-    setError(null)
-    
-    try {
-      const params: any = {}
-      
-      if (filters.search) params.search = filters.search
-      if (filters.cuisine !== 'all') params.cuisine = filters.cuisine
-      if (filters.location !== 'all') params.location = filters.location
-      if (filters.sortBy) params.sortBy = filters.sortBy
-      
-      // Add location parameters if available
-      if (filters.userLocation && !filters.userLocation.error) {
-        params.lat = filters.userLocation.coordinates.latitude
-        params.lng = filters.userLocation.coordinates.longitude
-        params.radius = filters.radius || 10
-      }
-
-      const response = await restaurantAPI.getAll(params)
-      setRestaurants(response.data.restaurants || [])
-      setAvailableFilters(response.data.filters || { cuisines: [], locations: [] })
-    } catch (err: any) {
-      setError('Failed to fetch restaurants')
-      console.error('Error fetching restaurants:', err)
-    } finally {
-      setIsLoading(false)
+  // Convert search filters to API parameters
+  const apiParams = useMemo(() => {
+    const params: Omit<RestaurantAPIParams, 'cursor' | 'page'> = {
+      sortBy: searchParams.sortBy || 'rating'
     }
-  }
+    
+    if (searchParams.search) params.search = searchParams.search
+    if (searchParams.cuisine && searchParams.cuisine !== 'all') params.cuisine = searchParams.cuisine
+    if (searchParams.location && searchParams.location !== 'all') params.location = searchParams.location
+    if (searchParams.lat) params.lat = searchParams.lat
+    if (searchParams.lng) params.lng = searchParams.lng
+    if (searchParams.radius) params.radius = searchParams.radius
+    
+    return params
+  }, [searchParams])
 
-  // Initial load
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useInfiniteRestaurants(apiParams)
+
+  // Flatten all pages into a single array of restaurants
+  const restaurants = useMemo(() => {
+    return data?.pages.flatMap(page => page.restaurants) ?? []
+  }, [data])
+
+  // Get available filters from the first page
+  const availableFilters = useMemo(() => {
+    return data?.pages[0]?.filters ?? { cuisines: [], locations: [] }
+  }, [data])
+
+  // Intersection observer for infinite scroll
+  const [loadMoreRef, isLoadMoreVisible] = useIntersection({
+    threshold: 0.1,
+    rootMargin: '100px'
+  })
+
+  // Trigger next page load when load more element is visible
   useEffect(() => {
-    fetchRestaurants({
-      search: '',
-      cuisine: 'all',
-      location: 'all', 
-      discount: 'all',
-      sortBy: 'rating'
-    })
-  }, [])
+    if (isLoadMoreVisible && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }, [isLoadMoreVisible, hasNextPage, isFetchingNextPage, fetchNextPage])
 
   const handleSearchChange = useCallback((filters: SearchFilters) => {
-    fetchRestaurants(filters)
-  }, []) // Empty dependency array since fetchRestaurants doesn't depend on external state
+    const newParams: Omit<RestaurantAPIParams, 'cursor' | 'page'> = {
+      sortBy: filters.sortBy || 'rating'
+    }
+    
+    if (filters.search) newParams.search = filters.search
+    if (filters.cuisine !== 'all') newParams.cuisine = filters.cuisine
+    if (filters.location !== 'all') newParams.location = filters.location
+    if (filters.userLocation && !filters.userLocation.error) {
+      newParams.lat = filters.userLocation.coordinates.latitude
+      newParams.lng = filters.userLocation.coordinates.longitude
+      newParams.radius = filters.radius || 10
+    }
+    
+    setSearchParams(newParams)
+  }, [])
 
-  if (error) {
+  if (isError) {
     return (
       <div className="min-h-screen py-8">
-        <div className="container mx-auto px-4">
+        <div className="container max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center py-16">
             <Building2 className="h-16 w-16 mx-auto mb-4 text-red-500" />
             <h2 className="text-2xl font-bold mb-2">Error Loading Restaurants</h2>
@@ -79,7 +99,7 @@ export default function RestaurantsPage() {
 
   return (
     <div className="min-h-screen py-8">
-      <div className="container mx-auto px-4">
+      <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">All Restaurants</h1>
@@ -103,6 +123,11 @@ export default function RestaurantsPage() {
         <div className="mb-6">
           <p className="text-muted-foreground">
             {isLoading ? "Loading..." : `${restaurants.length} restaurant${restaurants.length !== 1 ? 's' : ''} found`}
+            {data?.pages[0]?.pagination?.totalCount && (
+              <span className="ml-2">
+                (Total: {data.pages[0].pagination.totalCount})
+              </span>
+            )}
           </p>
         </div>
 
@@ -121,7 +146,7 @@ export default function RestaurantsPage() {
             ))}
           </div>
         ) : restaurants.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {restaurants.map((restaurant) => {
               const activeOffers = restaurant.offers.filter(
                 offer => offer.isActive && new Date(offer.expiresAt) > new Date()
@@ -194,6 +219,28 @@ export default function RestaurantsPage() {
                 Add Restaurant
               </Link>
             </Button>
+          </div>
+        )}
+
+        {/* Infinite scroll loading indicator */}
+        {(hasNextPage || isFetchingNextPage) && (
+          <div 
+            ref={loadMoreRef}
+            className="flex justify-center items-center py-8"
+          >
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Loading more restaurants...</span>
+            </div>
+          </div>
+        )}
+
+        {/* End of results indicator */}
+        {!hasNextPage && !isLoading && restaurants.length > 0 && (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">
+                                You&apos;ve seen all {restaurants.length} restaurants
+            </p>
           </div>
         )}
       </div>

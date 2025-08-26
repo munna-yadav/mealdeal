@@ -1,14 +1,12 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { useSearchParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { DealCard } from "@/components/deal-card"
 import { AdvancedSearch } from "@/components/advanced-search"
-import { SlidersHorizontal } from "lucide-react"
-import { offerAPI } from "@/lib/api"
-import { formatDistance, type LocationData } from "@/lib/geolocation"
+import { Loader2, Gift } from "lucide-react"
+import { useInfiniteOffers } from "@/hooks/useOffers"
+import { useIntersection } from "@/hooks/useIntersection"
+import type { OfferAPIParams, SearchFilters } from "@/types"
 
 // Helper function to calculate days until expiry
 const getDaysUntilExpiry = (expiresAt: string) => {
@@ -24,120 +22,90 @@ const getDaysUntilExpiry = (expiresAt: string) => {
   return `${diffDays} days`
 }
 
-interface Offer {
-  id: number
-  title: string
-  description?: string
-  originalPrice: number
-  discountedPrice: number
-  discount: number
-  terms?: string
-  expiresAt: string
-  isActive: boolean
-  restaurantId: number
-  restaurant: {
-    id: number
-    name: string
-    cuisine: string
-    location: string
-    latitude?: number
-    longitude?: number
-    rating: number
-    image?: string
-  }
-  distance?: number
-  createdAt: string
-  updatedAt: string
-}
-
-interface SearchFilters {
-  search: string
-  cuisine: string
-  location: string
-  discount: string
-  sortBy: string
-  userLocation?: LocationData | null
-  radius?: number
-}
-
 export default function DealsPage() {
-  const searchParams = useSearchParams()
-  const [offers, setOffers] = useState<Offer[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [availableFilters, setAvailableFilters] = useState({ cuisines: [], locations: [] })
+  const [searchParams, setSearchParams] = useState<Omit<OfferAPIParams, 'cursor' | 'page'>>({
+    activeOnly: true,
+    sortBy: 'discount'
+  })
 
-  const fetchOffers = async (filters: SearchFilters) => {
-    setIsLoading(true)
-    setError(null)
-    
-    try {
-      const params: any = { activeOnly: true }
-      
-      if (filters.search) params.search = filters.search
-      if (filters.cuisine !== 'all') params.cuisine = filters.cuisine
-      if (filters.location !== 'all') params.location = filters.location
-      if (filters.discount !== 'all') params.discount = filters.discount
-      if (filters.sortBy) params.sortBy = filters.sortBy
-      
-      // Add location parameters if available
-      if (filters.userLocation && !filters.userLocation.error) {
-        params.lat = filters.userLocation.coordinates.latitude
-        params.lng = filters.userLocation.coordinates.longitude
-        params.radius = filters.radius || 10
-      }
-
-      const response = await offerAPI.getAll(params)
-      setOffers(response.data.offers || [])
-      setAvailableFilters(response.data.filters || { cuisines: [], locations: [] })
-    } catch (err: any) {
-      setError('Failed to fetch offers')
-      console.error('Error fetching offers:', err)
-    } finally {
-      setIsLoading(false)
+  // Convert search filters to API parameters
+  const apiParams = useMemo(() => {
+    const params: Omit<OfferAPIParams, 'cursor' | 'page'> = {
+      activeOnly: true,
+      sortBy: searchParams.sortBy || 'discount'
     }
-  }
-
-  // Initial load and URL parameter handling
-  useEffect(() => {
-    const cuisine = searchParams.get('cuisine')
-    fetchOffers({
-      search: '',
-      cuisine: cuisine || 'all',
-      location: 'all',
-      discount: 'all',
-      sortBy: 'discount'
-    })
+    
+    if (searchParams.search) params.search = searchParams.search
+    if (searchParams.cuisine && searchParams.cuisine !== 'all') params.cuisine = searchParams.cuisine
+    if (searchParams.location && searchParams.location !== 'all') params.location = searchParams.location
+    if (searchParams.discount && searchParams.discount !== 'all') params.discount = searchParams.discount
+    if (searchParams.lat) params.lat = searchParams.lat
+    if (searchParams.lng) params.lng = searchParams.lng
+    if (searchParams.radius) params.radius = searchParams.radius
+    
+    return params
   }, [searchParams])
 
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useInfiniteOffers(apiParams)
+
+  // Flatten all pages into a single array of offers
+  const offers = useMemo(() => {
+    return data?.pages.flatMap(page => page.offers) ?? []
+  }, [data])
+
+  // Get available filters from the first page
+  const availableFilters = useMemo(() => {
+    return data?.pages[0]?.filters ?? { cuisines: [], locations: [] }
+  }, [data])
+
+  // Intersection observer for infinite scroll
+  const [loadMoreRef, isLoadMoreVisible] = useIntersection({
+    threshold: 0.1,
+    rootMargin: '100px'
+  })
+
+  // Trigger next page load when load more element is visible
+  useEffect(() => {
+    if (isLoadMoreVisible && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }, [isLoadMoreVisible, hasNextPage, isFetchingNextPage, fetchNextPage])
+
   const handleSearchChange = useCallback((filters: SearchFilters) => {
-    fetchOffers(filters)
-  }, []) // Empty dependency array since fetchOffers doesn't depend on external state
+    const newParams: Omit<OfferAPIParams, 'cursor' | 'page'> = {
+      activeOnly: true,
+      sortBy: filters.sortBy || 'discount'
+    }
+    
+    if (filters.search) newParams.search = filters.search
+    if (filters.cuisine !== 'all') newParams.cuisine = filters.cuisine
+    if (filters.location !== 'all') newParams.location = filters.location
+    if (filters.discount !== 'all') newParams.discount = filters.discount
+    if (filters.userLocation && !filters.userLocation.error) {
+      newParams.lat = filters.userLocation.coordinates.latitude
+      newParams.lng = filters.userLocation.coordinates.longitude
+      newParams.radius = filters.radius || 10
+    }
+    
+    setSearchParams(newParams)
+  }, [])
 
-  // Convert offers to deal format for DealCard component
-  const allDeals = offers.map(offer => ({
-    id: offer.id.toString(),
-    title: offer.title,
-    restaurant: {
-      name: offer.restaurant.name,
-      rating: offer.restaurant.rating,
-      location: `${offer.restaurant.location}${offer.distance ? ` • ${formatDistance(offer.distance)}` : ''}`
-    },
-    discount: offer.discount,
-    originalPrice: offer.originalPrice,
-    discountedPrice: offer.discountedPrice,
-    image: offer.restaurant.image || "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=600&fit=crop",
-    expiresIn: getDaysUntilExpiry(offer.expiresAt),
-    cuisine: offer.restaurant.cuisine,
-    isFavorite: false // TODO: Implement favorites functionality
-  }))
-
-  if (error) {
+  if (isError) {
     return (
-      <div className="min-h-screen py-8 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">Error Loading Deals</h2>
-          <p className="text-muted-foreground">Please try again later</p>
+      <div className="min-h-screen py-8">
+        <div className="container max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-16">
+            <Gift className="h-16 w-16 mx-auto mb-4 text-red-500" />
+            <h2 className="text-2xl font-bold mb-2">Error Loading Deals</h2>
+            <p className="text-muted-foreground">Please try again later</p>
+          </div>
         </div>
       </div>
     )
@@ -145,12 +113,12 @@ export default function DealsPage() {
 
   return (
     <div className="min-h-screen py-8">
-      <div className="container max-w-screen-2xl mx-auto px-4">
+      <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">All Deals</h1>
-          <p className="text-muted-foreground text-lg">
-            Discover {allDeals.length} amazing restaurant deals in your area
+          <h1 className="text-4xl font-bold mb-2">🎉 Hot Deals</h1>
+          <p className="text-muted-foreground">
+            Discover amazing food deals and save on your favorite meals
           </p>
         </div>
 
@@ -160,60 +128,91 @@ export default function DealsPage() {
             onSearchChange={handleSearchChange}
             availableFilters={availableFilters}
             searchType="deals"
-            placeholder="Search deals, restaurants, or cuisines..."
+            placeholder="Search deals, cuisine, or location..."
             showLocationSearch={true}
-            initialFilters={{
-              cuisine: searchParams.get('cuisine') || 'all'
-            }}
           />
         </div>
 
-        {/* Results Header */}
-        <div className="flex items-center justify-between mb-6">
+        {/* Results Count */}
+        <div className="mb-6">
           <p className="text-muted-foreground">
-            Showing {allDeals.length} deals
+            {isLoading ? "Loading..." : `${offers.length} deal${offers.length !== 1 ? 's' : ''} found`}
+            {data?.pages[0]?.pagination?.totalCount && (
+              <span className="ml-2">
+                (Total: {data.pages[0].pagination.totalCount})
+              </span>
+            )}
           </p>
         </div>
 
         {/* Deals Grid */}
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {Array.from({ length: 8 }).map((_, i) => (
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
               <div key={i} className="animate-pulse">
-                <div className="bg-gray-200 h-48 rounded-lg mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded mb-1"></div>
-                <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                <div className="h-48 bg-gray-200 rounded-t-lg"></div>
+                <div className="p-4">
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded mb-1"></div>
+                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                </div>
               </div>
             ))}
           </div>
-        ) : allDeals.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {allDeals.map((deal) => (
-              <DealCard key={deal.id} {...deal} />
+        ) : offers.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            {offers.map((offer) => (
+              <DealCard
+                key={offer.id}
+                id={offer.id.toString()}
+                title={offer.title}
+                restaurant={{
+                  name: offer.restaurant.name,
+                  rating: offer.restaurant.rating,
+                  location: offer.restaurant.location,
+                }}
+                discount={offer.discount}
+                originalPrice={offer.originalPrice}
+                discountedPrice={offer.discountedPrice}
+                image={offer.restaurant.image || "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop"}
+                expiresIn={getDaysUntilExpiry(offer.expiresAt)}
+                cuisine={offer.restaurant.cuisine}
+                isFavorite={false}
+              />
             ))}
           </div>
         ) : (
           <div className="text-center py-16">
-            <div className="text-6xl mb-4">🔍</div>
+            <Gift className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
             <h3 className="text-xl font-semibold mb-2">No deals found</h3>
             <p className="text-muted-foreground mb-4">
-              Try adjusting your filters or search terms
+              Try adjusting your search criteria or filters
             </p>
           </div>
         )}
 
-        {/* Load More Button (for pagination) */}
-        {allDeals.length > 0 && allDeals.length >= 8 && (
-          <div className="text-center mt-12">
-            <Button variant="outline" size="lg">
-              Load More Deals
-            </Button>
+        {/* Infinite scroll loading indicator */}
+        {(hasNextPage || isFetchingNextPage) && (
+          <div 
+            ref={loadMoreRef}
+            className="flex justify-center items-center py-8"
+          >
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Loading more deals...</span>
+            </div>
+          </div>
+        )}
+
+        {/* End of results indicator */}
+        {!hasNextPage && !isLoading && offers.length > 0 && (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">
+                                You&apos;ve seen all {offers.length} deals
+            </p>
           </div>
         )}
       </div>
     </div>
   )
 }
-
-
