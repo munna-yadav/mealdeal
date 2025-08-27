@@ -150,3 +150,29 @@ enum ClaimStatus {
   REDEEMED
   EXPIRED
 }
+
+model NewsletterSubscription {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([isActive])
+}
+
+model Newsletter {
+  id          Int      @id @default(autoincrement())
+  subject     String
+  content     String
+  htmlContent String?
+  sentAt      DateTime?
+  sentCount   Int      @default(0)
+  createdBy   Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([sentAt])
+  @@index([createdBy])
+}
