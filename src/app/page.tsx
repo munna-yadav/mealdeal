@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { DealCard } from "@/components/deal-card"
 import { RestaurantCard } from "@/components/restaurant-card"
+import { NewsletterSubscription } from "@/components/newsletter-subscription"
 import { Search, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import { useRestaurants } from "@/hooks/useRestaurants"
@@ -258,6 +259,13 @@ export default function Home() {
               </div>
             )}
           </div>
+        </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <section className="py-16">
+        <div className="container max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <NewsletterSubscription className="max-w-2xl mx-auto" />
         </div>
       </section>
 
