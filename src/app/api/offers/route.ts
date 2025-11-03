@@ -273,7 +273,23 @@ export async function GET(req: NextRequest) {
         return { ...offer, distance: null }
       })
 
-      // Assign back to offers for downstream processing (filtering / pagination)
+      // Filter by the requested radius (keep offers without coordinates), then sort if requested
+      offersWithDistance = offersWithDistance.filter(offer => {
+        if (offer.distance === null) return true // keep offers without coords
+        return offer.distance <= radiusKm
+      })
+
+      // Sort by distance if location sorting is requested
+      if (sortBy === 'distance') {
+        offersWithDistance.sort((a, b) => {
+          if (a.distance === null && b.distance === null) return 0
+          if (a.distance === null) return 1
+          if (b.distance === null) return -1
+          return a.distance - b.distance
+        })
+      }
+
+      // Assign the processed list back for downstream pagination/response
       offers = offersWithDistance
     }
 
