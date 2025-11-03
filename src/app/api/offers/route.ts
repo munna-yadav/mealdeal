@@ -259,31 +259,22 @@ export async function GET(req: NextRequest) {
       }
       const radiusKm = parseFloat(radius)
 
-      offers = offers
-        .map(offer => {
-          if (offer.restaurant.latitude && offer.restaurant.longitude) {
-            const distance = calculateDistance(userCoords, {
-              latitude: offer.restaurant.latitude,
-              longitude: offer.restaurant.longitude,
-            })
-            return { ...offer, distance }
-          }
-          return { ...offer, distance: null }
-        })
-        .filter(offer => {
-          if (offer.distance === null) return true // Include offers without coordinates
-          return offer.distance <= radiusKm
-        })
+      // Create a new array of offers that includes a `distance` property
+      // Note: we create a new typed variable so TypeScript knows the property exists
+      type OfferType = typeof offers[number]
+      let offersWithDistance: (OfferType & { distance: number | null })[] = offers.map(offer => {
+        if (offer.restaurant.latitude && offer.restaurant.longitude) {
+          const distance = calculateDistance(userCoords, {
+            latitude: offer.restaurant.latitude,
+            longitude: offer.restaurant.longitude,
+          })
+          return { ...offer, distance }
+        }
+        return { ...offer, distance: null }
+      })
 
-      // Sort by distance if location sorting is requested
-      if (sortBy === 'distance') {
-        offers.sort((a, b) => {
-          if (a.distance === null && b.distance === null) return 0
-          if (a.distance === null) return 1
-          if (b.distance === null) return -1
-          return a.distance - b.distance
-        })
-      }
+      // Assign back to offers for downstream processing (filtering / pagination)
+      offers = offersWithDistance
     }
 
     // Get filter options for frontend
