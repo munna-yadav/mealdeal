@@ -83,8 +83,7 @@ export default function EditRestaurantPage({ params }: EditRestaurantPageProps) 
             coordinates: {
               latitude: restaurant.latitude,
               longitude: restaurant.longitude
-            },
-            timestamp: Date.now()
+            }
           })
         }
 

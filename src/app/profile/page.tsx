@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { useAuthGuard } from "@/hooks/useAuthGuard"
 import { useRestaurantsByOwner } from "@/hooks/useRestaurants"
@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DealCard } from "@/components/deal-card"
 import { User, Heart, History, Settings, MapPin, Bell, Star, Trash2, Edit, Building2, Plus } from "lucide-react"
+import type { DealCardProps } from "@/types"
 
 // Mock user data
 const userData = {
@@ -28,11 +29,35 @@ const userData = {
 }
 
 // Placeholder data - these features will be implemented later
-const savedDeals: unknown[] = []
-const dealHistory: unknown[] = []
-const favoriteRestaurants: unknown[] = []
+interface SavedDeal extends DealCardProps {
+  savedDate: string
+}
 
-export default function ProfilePage() {
+interface DealHistoryItem {
+  id: string
+  title: string
+  restaurant: string
+  date: string
+  status: "used" | "expired"
+  paidPrice: number
+  originalPrice: number
+  savings: number
+}
+
+interface FavoriteRestaurant {
+  id: string
+  name: string
+  cuisine: string
+  image: string
+  rating: number
+  activeDeals: number
+}
+
+const savedDeals: SavedDeal[] = []
+const dealHistory: DealHistoryItem[] = []
+const favoriteRestaurants: FavoriteRestaurant[] = []
+
+function ProfilePageContent() {
   const { isAuthorized, isLoading, user } = useAuthGuard()
   const { data: userRestaurants = [], isLoading: isLoadingRestaurants } = useRestaurantsByOwner(user?.id)
   const searchParams = useSearchParams()
@@ -511,5 +536,20 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    }>
+      <ProfilePageContent />
+    </Suspense>
   )
 }

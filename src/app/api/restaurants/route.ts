@@ -198,14 +198,14 @@ export async function GET(req: NextRequest) {
         })
 
       // Sort by distance if location sorting is requested
-      if (sortBy === 'distance') {
-        restaurants.sort((a, b) => {
-          if (a.distance === null && b.distance === null) return 0
-          if (a.distance === null) return 1
-          if (b.distance === null) return -1
-          return a.distance - b.distance
-        })
-      }
+      // if (sortBy === 'distance') {
+      //   restaurants.sort((a, b) => {
+      //     if (a.distance === null && b.distance === null) return 0
+      //     if (a.distance === null) return 1
+      //     if (b.distance === null) return -1
+      //     return a.distance - b.distance
+      //   })
+      // }
     }
 
     // Get unique cuisines and locations for frontend filters

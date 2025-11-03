@@ -259,9 +259,10 @@ export async function GET(req: NextRequest) {
       }
       const radiusKm = parseFloat(radius)
 
-      // Create a new array of offers that includes a `distance` property
-      // Note: we create a new typed variable so TypeScript knows the property exists
-      type OfferType = typeof offers[number]
+  // Create a new array of offers that includes a `distance` property
+  // Note: we create a new typed variable so TypeScript knows the property exists.
+  // OfferType is inferred from the runtime `offers` array returned by Prisma
+  type OfferType = typeof offers[number]
       let offersWithDistance: (OfferType & { distance: number | null })[] = offers.map(offer => {
         if (offer.restaurant.latitude && offer.restaurant.longitude) {
           const distance = calculateDistance(userCoords, {

@@ -15,7 +15,8 @@ export function QueryProvider({ children }: { children: ReactNode }) {
             staleTime: 60 * 1000, // 1 minute
             retry: (failureCount, error: unknown) => {
               // Don't retry on 4xx errors
-              if ((error as { response?: { status?: number } })?.response?.status >= 400 && (error as { response?: { status?: number } })?.response?.status < 500) {
+              const status = (error as { response?: { status?: number } })?.response?.status
+              if (status !== undefined && status >= 400 && status < 500) {
                 return false
               }
               return failureCount < 3

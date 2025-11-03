@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/navbar";
 import { QueryProvider } from "@/providers/query-provider";
+import { SessionProvider } from "@/providers/session-provider";
 import { AuthDebug } from "@/components/auth-debug";
 import { Toaster } from "sonner";
 
@@ -38,10 +39,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <QueryProvider>
-            <Navbar />
-            <main>{children}</main>
-            <AuthDebug />
-            <Toaster />
+            <SessionProvider>
+              <Navbar />
+              <main>{children}</main>
+              <AuthDebug />
+              <Toaster />
+            </SessionProvider>
           </QueryProvider>
         </ThemeProvider>
       </body>

@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     // Delete any existing reset tokens for this user
     try {
-      await prisma.PasswordResetToken.deleteMany({
+      await prisma.passwordResetToken.deleteMany({
         where: { userId: user.id },
       });
     } catch (error) {
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
 
     // Create new reset token
     try {
-      await prisma.PasswordResetToken.create({
+      await prisma.passwordResetToken.create({
         data: {
           token: resetToken,
           userId: user.id,

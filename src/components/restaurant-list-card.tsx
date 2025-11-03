@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Star, MapPin, Edit } from "lucide-react"
-import type { Restaurant } from "@/hooks/useRestaurants"
+import type { Restaurant } from "@/types"
 
 interface RestaurantListCardProps {
   restaurant: Restaurant

@@ -66,12 +66,7 @@ export interface Restaurant {
     name: string
     email: string
   }
-  offers: Array<{
-    id: number
-    title: string
-    isActive: boolean
-    expiresAt: string
-  }>
+  offers: Offer[]
   distance?: number
   createdAt: string
   updatedAt: string

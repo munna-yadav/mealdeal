@@ -17,7 +17,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Please verify your email before logging in' }, { status: 403 });
   }
 
-  // 3️⃣ Validate password
+  // 3️⃣ Check if user has password (not OAuth user)
+  if (!user.password) {
+    return NextResponse.json({ error: 'This account was created with OAuth. Please sign in using the OAuth provider.' }, { status: 401 });
+  }
+
+  // 4️⃣ Validate password
   const isValid = await bcrypt.compare(password, user.password);
   if (!isValid) {
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });

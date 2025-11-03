@@ -12,7 +12,7 @@ import { restaurantAPI, reservationsAPI, dealsAPI } from "@/lib/api"
 import { toast } from "sonner"
 import { useAuth } from "@/hooks/useAuth"
 import { ReservationModal } from "@/components/reservation-modal"
-import type { Restaurant } from "@/hooks/useRestaurants"
+import type { Restaurant } from "@/types"
 
 // Default placeholder data for loading/error states
 const defaultImages = [

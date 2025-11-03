@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Find the reset token
-    const resetTokenRecord = await prisma.PasswordResetToken.findUnique({
+    const resetTokenRecord = await prisma.passwordResetToken.findUnique({
       where: { token },
       include: { user: true },
     });
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     // Check if token is expired
     if (resetTokenRecord.expiresAt < new Date()) {
       // Delete expired token
-      await prisma.PasswordResetToken.delete({
+      await prisma.passwordResetToken.delete({
         where: { token },
       });
 
@@ -56,12 +56,12 @@ export async function POST(req: NextRequest) {
     });
 
     // Delete the used token
-    await prisma.PasswordResetToken.delete({
-      where: { token },
-    });
+          await prisma.passwordResetToken.delete({
+        where: { token },
+      });
 
     // Also delete any other reset tokens for this user
-    await prisma.PasswordResetToken.deleteMany({
+    await prisma.passwordResetToken.deleteMany({
       where: { userId: resetTokenRecord.userId },
     });
 

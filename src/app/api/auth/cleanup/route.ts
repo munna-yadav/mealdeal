@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 // This endpoint should be called by a CRON job to clean up expired tokens
-export async function POST(req: NextRequest) {
+export async function POST(_req: NextRequest) {
   try {
     // Delete expired verification tokens
-    const deletedVerificationTokens = await prisma.VerificationToken.deleteMany({
+    const deletedVerificationTokens = await prisma.verificationToken.deleteMany({
       where: {
         expiresAt: {
           lt: new Date(),
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Delete expired password reset tokens
-    const deletedResetTokens = await prisma.PasswordResetToken.deleteMany({
+    const deletedResetTokens = await prisma.passwordResetToken.deleteMany({
       where: {
         expiresAt: {
           lt: new Date(),
