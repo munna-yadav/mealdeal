@@ -61,7 +61,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Send reset email
-    const resetUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/auth/reset-password?token=${resetToken}`;
+    const baseUrl = process.env.NEXTAUTH_URL || 'https://mealdeal-dun.vercel.app';
+    const resetUrl = `${baseUrl}/auth/reset-password?token=${resetToken}`;
     
     try {
       await sendResetEmail(user.email, user.name, resetUrl);
