@@ -38,18 +38,24 @@ declare module "next-auth/jwt" {
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
-    GitHubProvider({
-      clientId: process.env.GITHUB_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
-    }),
-    DiscordProvider({
-      clientId: process.env.DISCORD_CLIENT_ID!,
-      clientSecret: process.env.DISCORD_CLIENT_SECRET!,
-    }),
+    process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? GoogleProvider({
+          clientId: process.env.GOOGLE_CLIENT_ID,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        })
+      : undefined,
+    process.env.GITHUB_ID && process.env.GITHUB_SECRET
+      ? GitHubProvider({
+          clientId: process.env.GITHUB_ID,
+          clientSecret: process.env.GITHUB_SECRET,
+        })
+      : undefined,
+    process.env.DISCORD_CLIENT_ID && process.env.DISCORD_CLIENT_SECRET
+      ? DiscordProvider({
+          clientId: process.env.DISCORD_CLIENT_ID,
+          clientSecret: process.env.DISCORD_CLIENT_SECRET,
+        })
+      : undefined,
     CredentialsProvider({
       name: "credentials",
       credentials: {
@@ -90,7 +96,7 @@ export const authOptions: NextAuthOptions = {
         };
       }
     })
-  ],
+  ].filter(Boolean) as NextAuthOptions["providers"],
   session: {
     strategy: "jwt",
   },
