@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-
-
-import { verifyToken } from '@/lib/auth'
+import { getToken } from 'next-auth/jwt'
 
 // Routes that require authentication
 const protectedPaths = ['/profile', '/restaurant/add', '/offer/add']
@@ -9,12 +7,14 @@ const protectedPaths = ['/profile', '/restaurant/add', '/offer/add']
 // Routes that should redirect to home if user is already authenticated
 const authPaths = ['/auth/signin', '/auth/signup']
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   
-  // Get token from the request
-  const token = request.cookies.get('access_token')?.value || 
-                request.headers.get('authorization')?.replace('Bearer ', '')
+  // Get NextAuth session token
+  const token = await getToken({ 
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET 
+  })
 
   // Check if current path requires authentication
   const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path))
@@ -24,14 +24,11 @@ export function middleware(request: NextRequest) {
 
   if (isProtectedPath) {
     if (!token) {
-      // Redirect to sign in if accessing protected route without token
+      // Redirect to sign in if accessing protected route without session
       const signInUrl = new URL('/auth/signin', request.url)
       signInUrl.searchParams.set('callbackUrl', pathname)
       return NextResponse.redirect(signInUrl)
     }
-
-    // TODO: Add token verification here if needed
-    // For now, we trust the token exists and let the pages handle verification
   }
 
   if (isAuthPath && token) {

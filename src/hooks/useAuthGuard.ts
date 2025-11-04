@@ -1,4 +1,4 @@
-import { useAuth } from './useAuth'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
@@ -7,8 +7,10 @@ import { useEffect } from 'react'
  * Redirects to sign in page if user is not authenticated
  */
 export function useAuthGuard(redirectTo: string = '/auth/signin') {
-  const { user, isLoading, isAuthenticated } = useAuth()
+  const { data: session, status } = useSession()
   const router = useRouter()
+  const isLoading = status === 'loading'
+  const isAuthenticated = status === 'authenticated' && !!session
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -16,11 +18,20 @@ export function useAuthGuard(redirectTo: string = '/auth/signin') {
     }
   }, [isLoading, isAuthenticated, router, redirectTo])
 
+  // Map NextAuth session to user format
+  const user = session?.user ? {
+    id: parseInt(session.user.id || '0'),
+    name: session.user.name || '',
+    email: session.user.email || '',
+    isVerified: session.user.isVerified || false,
+    createdAt: new Date().toISOString(), // NextAuth doesn't provide this, so we use current date
+  } : null
+
   return {
     user,
     isLoading,
     isAuthenticated,
-    isAuthorized: isAuthenticated && !!user
+    isAuthorized: isAuthenticated && !!session
   }
 }
 
@@ -28,8 +39,10 @@ export function useAuthGuard(redirectTo: string = '/auth/signin') {
  * Hook to redirect authenticated users away from auth pages
  */
 export function useGuestGuard(redirectTo: string = '/') {
-  const { isLoading, isAuthenticated } = useAuth()
+  const { data: session, status } = useSession()
   const router = useRouter()
+  const isLoading = status === 'loading'
+  const isAuthenticated = status === 'authenticated' && !!session
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
@@ -48,7 +61,18 @@ export function useGuestGuard(redirectTo: string = '/') {
  * Hook for conditionally rendering content based on auth state
  */
 export function useAuthState() {
-  const { user, isLoading, isAuthenticated } = useAuth()
+  const { data: session, status } = useSession()
+  const isLoading = status === 'loading'
+  const isAuthenticated = status === 'authenticated' && !!session
+
+  // Map NextAuth session to user format
+  const user = session?.user ? {
+    id: parseInt(session.user.id || '0'),
+    name: session.user.name || '',
+    email: session.user.email || '',
+    isVerified: session.user.isVerified || false,
+    createdAt: new Date().toISOString(),
+  } : null
 
   return {
     user,
@@ -63,6 +87,7 @@ export function useAuthState() {
     }
   }
 }
+
 
 
 
