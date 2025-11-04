@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/hooks/useAuth"
 import { signIn } from "next-auth/react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -16,25 +15,37 @@ export default function SignInPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [isSigningIn, setIsSigningIn] = useState(false)
   const router = useRouter()
-  const { signin, isSigningIn, signinError } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setIsSigningIn(true)
 
     try {
-      await signin({ email, password })
-      router.push("/")
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        setError(result.error)
+        setIsSigningIn(false)
+      } else if (result?.ok) {
+        // Successfully signed in, refresh the page to update session
+        router.push("/")
+        router.refresh()
+      }
     } catch (error: unknown) {
-      const message = (error as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || 
-                     (error as { message?: string })?.message || "An error occurred"
+      const message = (error as { message?: string })?.message || "An error occurred"
       setError(message)
+      setIsSigningIn(false)
     }
   }
 
-  // Show signin error from hook if no local error
-  const displayError = error || (signinError as { response?: { data?: { error?: string } } })?.response?.data?.error
+  const displayError = error
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
