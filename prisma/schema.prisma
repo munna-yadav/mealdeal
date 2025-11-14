@@ -209,3 +209,8 @@ model Session {
 
   @@index([userId])
 }
+
+model Banner{
+  id    String @id @default(uuid())
+  text  String
+}
